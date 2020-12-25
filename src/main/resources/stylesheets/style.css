@@ -1,0 +1,11 @@
+.background-blue{
+    -fx-background-color : #1D3557;
+}
+.white-field {
+    -fx-text-inner-color : white;
+}
+
+.button-highlight{
+    -fx-background-color :  #ed8021;
+    -fx-background-radius :  5;
+}
