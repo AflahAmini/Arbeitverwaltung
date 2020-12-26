@@ -14,7 +14,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #1D3557;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="arbyte.controllers.RegisterController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" styleClass="background-blue" stylesheets="@../stylesheets/style.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="arbyte.controllers.RegisterController">
    <center>
       <VBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="267.0" prefWidth="397.0" spacing="10.0" BorderPane.alignment="CENTER">
          <children>
@@ -33,9 +33,9 @@
                   <Label text="Email " textFill="WHITE" GridPane.rowIndex="1" />
                   <Label text="Password " textFill="WHITE" GridPane.rowIndex="2" />
                   <Label text="Confirm Password" textFill="WHITE" GridPane.rowIndex="3" />
-                  <JFXTextField fx:id="emailField" focusColor="WHITE" unFocusColor="#ffffff4d" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <JFXPasswordField fx:id="passField" focusColor="WHITE" unFocusColor="#ffffff4d" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <JFXPasswordField fx:id="conpassField" focusColor="WHITE" unFocusColor="#ffffff4d" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <JFXTextField fx:id="emailField" focusColor="WHITE" styleClass="white-field" unFocusColor="#ffffff4d" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <JFXPasswordField fx:id="passField" focusColor="WHITE" styleClass="white-field" unFocusColor="#ffffff4d" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <JFXPasswordField fx:id="conpassField" focusColor="WHITE" styleClass="white-field" unFocusColor="#ffffff4d" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                </children>
                <padding>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -48,12 +48,12 @@
             </HBox>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                <children>
-                  <JFXButton buttonType="RAISED" onAction="#registerButton" style="-fx-background-color: #D17B0F; -fx-background-radius: 5;" text="Register" textFill="WHITE">
+                  <JFXButton fx:id="btnRegister" buttonType="RAISED" onAction="#registerButton" style="-fx-background-radius: 5;" styleClass="button-highlight" text="Register" textFill="WHITE">
                      <font>
                         <Font size="17.0" />
                      </font>
                   </JFXButton>
-                  <JFXButton onAction="#switchToLogIn" style="-fx-border-radius: 5; -fx-background-radius: 5;" text="Cancel" textFill="WHITE">
+                  <JFXButton fx:id="btnCancel" onAction="#switchToLogIn" style="-fx-border-radius: 5; -fx-background-radius: 5;" text="Cancel" textFill="WHITE">
                      <font>
                         <Font size="17.0" />
                      </font>
