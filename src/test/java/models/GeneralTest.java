@@ -1,9 +1,12 @@
 package models;
 
+import arbyte.helper.HttpRequestHandler;
 import arbyte.models.CalEvent;
 import arbyte.models.Kalendar;
 import arbyte.models.User;
+import org.junit.jupiter.api.Test;
 
+import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -21,6 +24,12 @@ public class GeneralTest {
 
         User user = new User("test@gmail.com", "123", "123");
         System.out.println(user.toJson());
+    }
+
+    @Test
+    void testing() throws URISyntaxException {
+        HttpRequestHandler.getRequest();
+
     }
 
     private  static ZonedDateTime dateTime(String dateTime){
