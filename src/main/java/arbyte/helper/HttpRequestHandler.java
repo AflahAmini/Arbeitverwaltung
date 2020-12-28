@@ -20,8 +20,11 @@ import java.util.function.Consumer;
 
 public class HttpRequestHandler {
 
+    private static HttpClient client = HttpClient.newBuilder()
+            .followRedirects(HttpClient.Redirect.ALWAYS)
+            .build();
+
     public static CompletableFuture<HttpResponse<String>> getRequest(String path) {
-        HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = defaultBuilder(path)
                             .GET()
                             .build();
@@ -30,7 +33,6 @@ public class HttpRequestHandler {
     }
 
     public static CompletableFuture<HttpResponse<String>> postRequest(String path, String content){
-        HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = defaultBuilder(path)
                 .POST(HttpRequest.BodyPublishers.ofString(content))
                 .build();
