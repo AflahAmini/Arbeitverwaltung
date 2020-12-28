@@ -11,10 +11,9 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-
-<HBox alignment="TOP_RIGHT" prefHeight="400.0" prefWidth="600.0" stylesheets="@../stylesheets/style.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="arbyte.controllers.MainController">
+<HBox alignment="TOP_RIGHT" prefHeight="400.0" prefWidth="600.0" stylesheets="@../stylesheets/style.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="arbyte.controllers.MainController">
    <children>
-      <AnchorPane maxHeight="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+      <AnchorPane fx:id="mainView" maxHeight="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
       <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="160.0" styleClass="background-blue">
          <children>
             <VBox alignment="TOP_CENTER" layoutX="431.0" prefHeight="400.0" prefWidth="169.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
