@@ -49,7 +49,9 @@ public class RegisterController {
             btnCancel.setDisable(true);
             btnRegister.setDisable(true);
 
-            HttpRequestHandler.postRequest("/register", user.toJson())
+            HttpRequestHandler reqHandler = HttpRequestHandler.getInstance();
+
+            reqHandler.postRequest("/register", user.toJson())
                 .thenAccept((response) -> {
                     btnCancel.setDisable(false);
                     btnRegister.setDisable(false);
@@ -59,8 +61,10 @@ public class RegisterController {
 
                     if (success) {
                         String accessToken = responseBody.get("accessToken").getAsString();
+                        String refreshToken = responseBody.get("refreshToken").getAsString();
 
-                        System.out.println(accessToken);
+                        reqHandler.setAccessToken(accessToken);
+                        reqHandler.setRefreshToken(refreshToken);
 
                         Platform.runLater(SceneHelper::showMainPage);
                     } else {

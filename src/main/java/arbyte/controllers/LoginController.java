@@ -47,25 +47,29 @@ public class LoginController {
             btnLogin.setDisable(true);
             btnRegister.setDisable(true);
 
-            HttpRequestHandler.postRequest("/login", user.toJson())
-            .thenAccept((response) -> {
-                btnLogin.setDisable(false);
-                btnRegister.setDisable(false);
+            HttpRequestHandler reqHandler = HttpRequestHandler.getInstance();
 
-                JsonObject responseBody = new Gson().fromJson(response.body(), JsonObject.class);
-                boolean success = responseBody.get("success").getAsBoolean();
+            reqHandler.postRequest("/login", user.toJson())
+                .thenAccept((response) -> {
+                    btnLogin.setDisable(false);
+                    btnRegister.setDisable(false);
 
-                if (success) {
-                    String accessToken = responseBody.get("accessToken").getAsString();
+                    JsonObject responseBody = new Gson().fromJson(response.body(), JsonObject.class);
+                    boolean success = responseBody.get("success").getAsBoolean();
 
-                    System.out.println(accessToken);
+                    if (success) {
+                        String accessToken = responseBody.get("accessToken").getAsString();
+                        String refreshToken = responseBody.get("refreshToken").getAsString();
 
-                    Platform.runLater(SceneHelper::showMainPage);
-                } else {
-                    String message = responseBody.get("message").getAsString();
+                        reqHandler.setAccessToken(accessToken);
+                        reqHandler.setRefreshToken(refreshToken);
 
-                    setError(message);
-                }
+                        Platform.runLater(SceneHelper::showMainPage);
+                    } else {
+                        String message = responseBody.get("message").getAsString();
+
+                        setError(message);
+                    }
             }).exceptionally( e -> {
                 setError("Unable to connect to the server");
 
