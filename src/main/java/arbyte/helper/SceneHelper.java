@@ -16,8 +16,6 @@ public class SceneHelper {
         currentStage.setResizable(false);
     }
 
-
-
     public static void showLogInPage(){
         SceneHelper.switchSceneResource("fxml/LoginPage.fxml", "Log In", 600, 400);
 
