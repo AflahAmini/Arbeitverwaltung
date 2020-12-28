@@ -2,46 +2,47 @@ package arbyte.helper;
 
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 public class HttpRequestHandler {
     //static
     private static String domain = "http://localhost:";
     private static int port = 3000;
 
-    public static void getRequest(String path, Consumer<String> onFinish) throws URISyntaxException {
+
+
+    public static CompletableFuture<HttpResponse<String>> getRequest(String path) {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = defaultBuilder(path)
-                .GET()
+                            .GET()
+                            .build();
+
+        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    public static CompletableFuture<HttpResponse<String>> postRequest(String path, String content){
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = defaultBuilder(path)
+                .POST(HttpRequest.BodyPublishers.ofString(content))
                 .build();
 
-        client
-                .sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .thenApply(HttpResponse::body)
-                .thenAccept(onFinish)
-                .join();
-
-        //https://jsonplaceholder.typicode.com/posts
-
-    }
-    public static void postRequest(){
-
-        
+        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    private static HttpRequest.Builder defaultBuilder(String path) throws URISyntaxException {
+    private static HttpRequest.Builder defaultBuilder(String path) {
+        // URL params
+        String domain = "http://localhost:";
+        int port = 3000;
 
         return  HttpRequest.newBuilder()
-                .uri(new URI(domain + String.valueOf(port) + path))
+                .uri(URI.create(domain + port + path))
+                .version(HttpClient.Version.HTTP_1_1)
                 .header("Content-Type", "application/json")
-                .version(HttpClient.Version.HTTP_2)
                 .timeout(Duration.ofSeconds(10));
     }
-
 }
