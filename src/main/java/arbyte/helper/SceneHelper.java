@@ -37,7 +37,6 @@ public class SceneHelper {
     public static Parent getParentFromFXML(String filename) {
         try {
             ResourceLoader loader = new ResourceLoader();
-            System.out.println(loader.getURLFromResource(filename).toString());
             return FXMLLoader.load(loader.getURLFromResource(filename));
         }
         catch(Exception e){
