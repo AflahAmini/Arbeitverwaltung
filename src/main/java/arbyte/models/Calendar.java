@@ -8,10 +8,10 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Kalendar {
+public class Calendar {
     private List<Month> months;
 
-    public Kalendar(){
+    public Calendar(){
         months = new ArrayList<>();
     }
 
@@ -66,10 +66,10 @@ public class Kalendar {
         return gson.toJson(this);
     }
 
-    public static Kalendar fromJson(String json){
+    public static Calendar fromJson(String json){
         Gson gson = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeConverter())
                 .create();
-        return gson.fromJson(json, Kalendar.class);
+        return gson.fromJson(json, Calendar.class);
     }
 
 

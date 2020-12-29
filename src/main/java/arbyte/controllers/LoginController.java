@@ -1,6 +1,7 @@
 package arbyte.controllers;
 
 import arbyte.helper.HttpRequestHandler;
+import arbyte.helper.RequestType;
 import arbyte.helper.SceneHelper;
 import arbyte.models.User;
 import com.google.gson.Gson;
@@ -39,7 +40,7 @@ public class LoginController {
 
     // Sends a POST request to /login and waits until a response is given.
     // While waiting the login and register buttons should be disabled.
-    public void buttonLogin(ActionEvent Event){
+    public void buttonLogin(){
         User user = new User(emailField.getText(), passField.getText(), passField.getText());
 
         if (user.isValid()) {
@@ -49,7 +50,7 @@ public class LoginController {
 
             HttpRequestHandler reqHandler = HttpRequestHandler.getInstance();
 
-            reqHandler.postRequest("/login", user.toJson())
+            reqHandler.request(RequestType.POST, "/login", user.toJson())
                 .thenAccept((response) -> {
                     btnLogin.setDisable(false);
                     btnRegister.setDisable(false);
@@ -83,7 +84,7 @@ public class LoginController {
         }
     }
 
-    public void switchToRegister(ActionEvent Event){
+    public void switchToRegister(){
         SceneHelper.showRegisterPage();
     }
 

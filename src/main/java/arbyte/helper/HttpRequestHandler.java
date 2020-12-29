@@ -1,23 +1,14 @@
 package arbyte.helper;
 
-
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpClient;
-import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
 
 public class HttpRequestHandler {
 
@@ -48,20 +39,24 @@ public class HttpRequestHandler {
         this.refreshToken = refreshToken;
     }
 
-    public CompletableFuture<HttpResponse<String>> getRequest(String path) {
-        HttpRequest request = defaultBuilder(path)
-                            .GET()
-                            .build();
+    // Sends a request to the server without authentication.
+    // payload is only necessary for a POST/PUT request, otherwise leave an empty string.
+    public CompletableFuture<HttpResponse<String>> request(RequestType requestType, String path, String payload) {
+        HttpRequest request = generateRequest(defaultBuilder(path), requestType, payload);
 
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    public CompletableFuture<HttpResponse<String>> getRequestWithAuth(String path) {
-        HttpRequest request = defaultBuilder(path)
-                            .header("Authorization", "Bearer " + accessToken)
-                            .build();
+    // Sends a request with authentication.
+    // payload is only necessary for a POST/PUT request, otherwise leave an empty string.
+    public CompletableFuture<HttpResponse<String>> requestWithAuth(RequestType requestType, String path, String payload) {
 
         return CompletableFuture.supplyAsync(() -> {
+            HttpRequest.Builder reqBuilder = defaultBuilder(path)
+                    .header("Authorization", "Bearer " + accessToken);
+
+            HttpRequest request = generateRequest(reqBuilder, requestType, payload);
+
             try {
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
@@ -73,6 +68,10 @@ public class HttpRequestHandler {
 
                         setAccessToken(responseJson.get("accessToken").getAsString());
                         setRefreshToken(responseJson.get("refreshToken").getAsString());
+
+                        reqBuilder = defaultBuilder(path)
+                                    .header("Authorization", "Bearer " + accessToken);
+                        request = generateRequest(reqBuilder, requestType, payload);
 
                         response = client.send(request, HttpResponse.BodyHandlers.ofString());
                     }
@@ -87,17 +86,27 @@ public class HttpRequestHandler {
         });
     }
 
-    public CompletableFuture<HttpResponse<String>> postRequest(String path, String content){
-        HttpRequest request = defaultBuilder(path)
-                .POST(HttpRequest.BodyPublishers.ofString(content))
-                .build();
-
-        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+    // Sends a request to refresh the access and refresh tokens.
+    private CompletableFuture<HttpResponse<String>> refreshTokens() {
+        System.out.println("Refreshing tokens");
+        return request(RequestType.POST, "/refresh-token",
+                String.format("{ \"refreshToken\": \"%s\" }", refreshToken));
     }
 
-    private CompletableFuture<HttpResponse<String>> refreshTokens() {
-        return postRequest("/refresh-token",
-                String.format("{ \"refreshToken\": \"%s\" }", refreshToken));
+    // Generates a request from a given builder object and request types along with the content (for POST requests only).
+    private HttpRequest generateRequest(HttpRequest.Builder reqBuilder, RequestType requestType, String payload) {
+        switch (requestType) {
+            case GET:
+                return reqBuilder
+                        .GET()
+                        .build();
+            case POST:
+                return reqBuilder
+                        .POST(HttpRequest.BodyPublishers.ofString(payload))
+                        .build();
+            default:
+                return null;
+        }
     }
 
     private HttpRequest.Builder defaultBuilder(String path) {

@@ -1,7 +1,7 @@
 package models;
 
 import arbyte.models.CalEvent;
-import arbyte.models.Kalendar;
+import arbyte.models.Calendar;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -12,72 +12,72 @@ import java.time.format.DateTimeFormatter;
 public class CalendarTest {
     @Test
     void listOfMonthEmptyOnStart(){
-        Kalendar kalendar = new Kalendar();
+        Calendar calendar = new Calendar();
 
-        Assertions.assertEquals(0, kalendar.getMonths().size());
+        Assertions.assertEquals(0, calendar.getMonths().size());
 
     }
 
     @Test
     void shouldContainListOfMonths() {
-        Kalendar kalendar = new Kalendar();
+        Calendar calendar = new Calendar();
         CalEvent calEvent = new CalEvent("benis", dateTime("20201218T18:00"), dateTime("20211218T18:00"));
         CalEvent calEvent2 = new CalEvent("benis", dateTime("20201118T18:00"), dateTime("20211218T18:00"));
-        kalendar.addEventToMonth(calEvent);
+        calendar.addEventToMonth(calEvent);
 
         // add new event,
-        Assertions.assertEquals(kalendar.getMonths().size(), 1);
+        Assertions.assertEquals(calendar.getMonths().size(), 1);
 
         // add new event, size of Month should stay the same coz Event has same MonthYear
-        kalendar.addEventToMonth(new CalEvent("benis", dateTime("20201218T18:00"), dateTime("20211218T18:00")));
-        Assertions.assertEquals(kalendar.getMonths().size(), 1);
+        calendar.addEventToMonth(new CalEvent("benis", dateTime("20201218T18:00"), dateTime("20211218T18:00")));
+        Assertions.assertEquals(calendar.getMonths().size(), 1);
 
         // size of Month should be 2
-        kalendar.addEventToMonth(calEvent2);
-        Assertions.assertEquals(kalendar.getMonths().size() , 2);
+        calendar.addEventToMonth(calEvent2);
+        Assertions.assertEquals(calendar.getMonths().size() , 2);
 
     }
 
     @Test
     void canAddEvent(){
-        Kalendar kalendar = new Kalendar();
+        Calendar calendar = new Calendar();
         CalEvent calEvent = new CalEvent("benis", dateTime("20201218T18:00"), dateTime("20211218T18:00"));
         CalEvent calEvent2 = new CalEvent("benis1", dateTime("20201219T18:00"), dateTime("20211218T18:00"));
         CalEvent calEvent3 = new CalEvent("benis2", dateTime("20201220T18:00"), dateTime("20211218T18:00"));
-        kalendar.addEventToMonth(calEvent3);
-        kalendar.addEventToMonth(calEvent);
-        kalendar.addEventToMonth(calEvent2);
+        calendar.addEventToMonth(calEvent3);
+        calendar.addEventToMonth(calEvent);
+        calendar.addEventToMonth(calEvent2);
 
 
 
-        Assertions.assertEquals(kalendar.getMonths().size(), 1);
-        Assertions.assertEquals(kalendar.getMonths().get(0).getEvents().get(0).getName(), "benis");
-        Assertions.assertEquals(kalendar.getMonths().get(0).getEvents().get(1).getName(), "benis1");
-        Assertions.assertEquals(kalendar.getMonths().get(0).getEvents().get(2).getName(), "benis2");
+        Assertions.assertEquals(calendar.getMonths().size(), 1);
+        Assertions.assertEquals(calendar.getMonths().get(0).getEvents().get(0).getName(), "benis");
+        Assertions.assertEquals(calendar.getMonths().get(0).getEvents().get(1).getName(), "benis1");
+        Assertions.assertEquals(calendar.getMonths().get(0).getEvents().get(2).getName(), "benis2");
     }
 
     @Test
     void canDeleteEvent(){
-        Kalendar kalendar = new Kalendar();
+        Calendar calendar = new Calendar();
         CalEvent event1 = new CalEvent("benis", dateTime("20201218T18:00"), dateTime("20201219T18:00"));
         CalEvent event2 = new CalEvent("benis1", dateTime("20211218T18:00"), dateTime("20221218T18:00"));
-        kalendar.addEventToMonth(event1);
-        kalendar.addEventToMonth(event1);
-        kalendar.addEventToMonth(event2);
-        kalendar.deleteEvent(event1);
-        kalendar.deleteEvent(event2);
-        kalendar.deleteEvent(event1);
+        calendar.addEventToMonth(event1);
+        calendar.addEventToMonth(event1);
+        calendar.addEventToMonth(event2);
+        calendar.deleteEvent(event1);
+        calendar.deleteEvent(event2);
+        calendar.deleteEvent(event1);
 
-        Assertions.assertEquals(kalendar.getMonths().size() , 0);
+        Assertions.assertEquals(calendar.getMonths().size() , 0);
     }
 
     @Test
     void canUpdateEvent(){
-        Kalendar kalendar = new Kalendar();
+        Calendar calendar = new Calendar();
         CalEvent event2 = new CalEvent("benis1", dateTime("20211218T18:00"), dateTime("20221218T18:00"));
         CalEvent event3 = new CalEvent("benis1", dateTime("20201218T18:00"), dateTime("20221218T18:00"));
-        kalendar.addEventToMonth(event2);
-        kalendar.editEvent(event2, event3);
+        calendar.addEventToMonth(event2);
+        calendar.editEvent(event2, event3);
 
         Assertions.assertEquals(event3.getMonthYear(), "12-2020");
     }
@@ -112,12 +112,12 @@ public class CalendarTest {
 
     @Test
     void checkIntersectmethod(){
-        Kalendar kalendar = new Kalendar();
+        Calendar calendar = new Calendar();
         CalEvent event2 = new CalEvent("benis1", dateTime("20211218T16:00"), dateTime("20211218T17:00"));
         CalEvent event3 = new CalEvent("benis1", dateTime("20211218T16:00"), dateTime("20211218T18:00"));
         //CalEvent event4 = new CalEvent("benis1", dateTime("20211218T17:00"), dateTime("20211218T20:00"));
-        kalendar.addEventToMonth(event2);
-        kalendar.addEventToMonth(event3);
+        calendar.addEventToMonth(event2);
+        calendar.addEventToMonth(event3);
 
         //Assertions.assertEquals(kalendar.isIntersect(event3), true);
         //Assertions.assertEquals(kalendar.isIntersect(event4), false);
