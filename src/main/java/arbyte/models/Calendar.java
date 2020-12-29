@@ -6,57 +6,74 @@ import com.google.gson.GsonBuilder;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Calendar {
-    private List<Month> months;
+    // Hash map maps the monthYear string to the corresponding Month object
+    public HashMap<String, Month> monthHashMap;
 
     public Calendar(){
-        months = new ArrayList<>();
+        monthHashMap = new HashMap<>();
     }
 
-    public List<Month> getMonths() {
-        return months;
+    // Should only be used in testing
+    public List<Month> getMonths(){
+        return new ArrayList<>(monthHashMap.values());
     }
 
-    public void addEventToMonth(CalEvent calEvent){
-        Month n = null;
-        if(!calEvent.isValid() || isIntersect(calEvent)){
-            System.out.println("Event is invalid");
-            return;
-        }
-        for(Month m : getMonths()){
-            if(m.getMonthYear().equals(calEvent.getMonthYear())){
-                n = m;
-                break;
-            }
-        }
-        if(n == null){
-            n = new Month(calEvent.getMonthYear());
-            months.add(n);
-        }
-        int i = binSearchRecur(calEvent,n.getEvents(),0,n.getEvents().size());
-        n.addEventAt(calEvent, i);
+    public List<CalEvent> getEventsOfMonth(String monthYear) {
+        Month m = monthHashMap.get(monthYear);
 
+        // If month does not exist, then there are no events in that month
+        if (m == null) {
+            return new ArrayList<>();
+        }
 
+        return m.getEvents();
     }
 
-    public void editEvent(CalEvent oldEvent, CalEvent newEvent){
+    // Adds the event to the corresponding month object.
+    // Throws an error if the event is invalid or the event overlaps other events of that month
+    public void addEvent(CalEvent calEvent) throws Exception {
+        if(!calEvent.isValid()) {
+            throw new Exception("Event is invalid!");
+        }
+        if(overlapsOtherEvents(calEvent)) {
+            throw new Exception("Event would overlap other events!");
+        }
+
+        String monthYear = calEvent.getMonthYear();
+        Month m = monthHashMap.getOrDefault(monthYear, null);
+
+        if(m == null){
+            m = new Month(monthYear);
+            monthHashMap.put(monthYear, m);
+        }
+
+        int i = binSearchRecur(calEvent,m.getEvents(),0,m.getEvents().size() - 1);
+        m.addEventAt(calEvent, i);
+    }
+
+    public void updateEvent(CalEvent oldEvent, CalEvent newEvent) throws Exception {
         deleteEvent(oldEvent);
-        addEventToMonth(newEvent);
+        // If add event fails then the old event should be re-added
+        try {
+            addEvent(newEvent);
+        } catch (Exception e) {
+            addEvent(oldEvent);
+            throw e;
+        }
     }
 
     public void deleteEvent(CalEvent calEvent){
-        int indexMonth = -1;
-        for(Month m : getMonths()){
-            if(m.getMonthYear().equals(calEvent.getMonthYear())){
-                indexMonth = getMonths().indexOf(m);
-                break;
-            }
-        }
-        getMonths().get(indexMonth).removeEvent(calEvent);
-        if(getMonths().get(indexMonth).getEvents().size() == 0){
-            getMonths().remove(getMonths().get(indexMonth));
+        String monthYear = calEvent.getMonthYear();
+        Month m = monthHashMap.getOrDefault(monthYear, null);
+
+        m.removeEvent(calEvent);
+
+        if(m.getEvents().size() == 0){
+            monthHashMap.remove(monthYear);
         }
     }
 
@@ -72,14 +89,15 @@ public class Calendar {
         return gson.fromJson(json, Calendar.class);
     }
 
+    // Runs a binary search in eventList for calEvent and returns the index where calEvent should be inserted at
+    private int binSearchRecur(CalEvent calEvent, List<CalEvent> eventList, int s, int e){
+        if(eventList.size() == 0){
+            return 0;
+        }
 
-    private int binSearchRecur(CalEvent calEvent,List<CalEvent> eventList, int s, int e){
         if(s == e){
-            if(eventList.size() == 0){
-                return 0;
-            }
             if(calEvent.getStartTime().compareTo(eventList.get(s).getStartTime())>0){
-                return s+1;
+                return s + 1;
             }
             return s;
         }
@@ -92,20 +110,24 @@ public class Calendar {
         }
     }
 
-    private boolean isIntersect(CalEvent calEvent){
-        for(Month x : getMonths()){
-            if(x.getMonthYear().equals(calEvent.getMonthYear())){
-                for(CalEvent y : x.getEvents()){
-                    System.out.println("yeet");
-                    int sitA =calEvent.getStartTime().compareTo(y.getEndTime()); // should negative if calEventStart is earlier than yEnd
-                    int sitB =y.getStartTime().compareTo(calEvent.getEndTime()); // should negative if yStart is earlier then calEventEnd
-                    System.out.println(sitA + " " + sitB);
-                    if(sitA < 0 && sitB < 0){
-                        return true;
-                    }
-                }
-            }
+    private boolean overlapsOtherEvents(CalEvent calEvent){
+        Month m = monthHashMap.getOrDefault(calEvent.getMonthYear(), null);
+
+        // If the month does no exist in the first place then there should be no intersections
+        if (m == null)
+            return false;
+
+        for(CalEvent y : m.getEvents()){
+            int sitA = calEvent.getStartTime().compareTo(y.getEndTime()); // should be negative if calEventStart is earlier than yEnd
+            if (sitA >= 0)
+                continue;       // Skip unnecessary second comparison
+            int sitB = y.getStartTime().compareTo(calEvent.getEndTime()); // should be negative if yStart is earlier then calEventEnd
+            if (sitB >= 0)
+                continue;
+
+            return true;
         }
+
         return false;
     }
 }

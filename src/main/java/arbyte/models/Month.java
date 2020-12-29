@@ -21,14 +21,14 @@ public class Month {
     }
 
     public void addEventAt(CalEvent c, int index){
-        events.add(index, c);
+        if (index == events.size()) {
+            events.add(c);
+        } else {
+            events.add(index, c);
+        }
     }
 
     public void removeEvent(CalEvent c){
         events.remove(c);
     }
-
-
-
-
 }

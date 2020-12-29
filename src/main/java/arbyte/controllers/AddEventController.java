@@ -32,12 +32,10 @@ public class AddEventController {
         ZonedDateTime eStartTime = ZonedDateTime.parse(eventStartTime.toString(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         ZonedDateTime eEndTime = ZonedDateTime.parse(eventStartTime.toString(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 
-
-
         CalEvent calEvent = new CalEvent(name, eStartTime, eEndTime);
 
         Calendar calendar = new Calendar();
-        calendar.addEventToMonth(calEvent);
+        // calendar.addEventToMonth(calEvent);
         calendar.toJson();
     }
 

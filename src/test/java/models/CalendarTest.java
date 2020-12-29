@@ -1,5 +1,6 @@
 package models;
 
+import arbyte.helper.test.TestHelper;
 import arbyte.models.CalEvent;
 import arbyte.models.Calendar;
 import org.junit.jupiter.api.Assertions;
@@ -7,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class CalendarTest {
     @Test
@@ -15,125 +16,106 @@ public class CalendarTest {
         Calendar calendar = new Calendar();
 
         Assertions.assertEquals(0, calendar.getMonths().size());
-
     }
 
     @Test
-    void shouldContainListOfMonths() {
+    void shouldContainListOfMonths() throws Exception {
         Calendar calendar = new Calendar();
-        CalEvent calEvent = new CalEvent("benis", dateTime("20201218T18:00"), dateTime("20211218T18:00"));
-        CalEvent calEvent2 = new CalEvent("benis", dateTime("20201118T18:00"), dateTime("20211218T18:00"));
-        calendar.addEventToMonth(calEvent);
+        CalEvent calEvent = new CalEvent("event1", TestHelper.dateTimeFrom("20200101T00:00"), TestHelper.dateTimeFrom("20200101T03:00"));
+        calendar.addEvent(calEvent);
 
-        // add new event,
+        // A new month object should be created to contain the event
         Assertions.assertEquals(calendar.getMonths().size(), 1);
 
-        // add new event, size of Month should stay the same coz Event has same MonthYear
-        calendar.addEventToMonth(new CalEvent("benis", dateTime("20201218T18:00"), dateTime("20211218T18:00")));
+        // Months list stay the same after an event of the same monthYear is added
+        calendar.addEvent(new CalEvent("event2", TestHelper.dateTimeFrom("20200101T09:00"), TestHelper.dateTimeFrom("20200101T11:00")));
         Assertions.assertEquals(calendar.getMonths().size(), 1);
 
-        // size of Month should be 2
-        calendar.addEventToMonth(calEvent2);
-        Assertions.assertEquals(calendar.getMonths().size() , 2);
-
+        // There should be 2 months in the list
+        calendar.addEvent(new CalEvent("event3", TestHelper.dateTimeFrom("20200201T05:00"), TestHelper.dateTimeFrom("20200201T08:00")));
+        Assertions.assertEquals(calendar.getMonths().size(), 2);
     }
 
     @Test
-    void canAddEvent(){
+    void canAddEvent() throws Exception {
         Calendar calendar = new Calendar();
-        CalEvent calEvent = new CalEvent("benis", dateTime("20201218T18:00"), dateTime("20211218T18:00"));
-        CalEvent calEvent2 = new CalEvent("benis1", dateTime("20201219T18:00"), dateTime("20211218T18:00"));
-        CalEvent calEvent3 = new CalEvent("benis2", dateTime("20201220T18:00"), dateTime("20211218T18:00"));
-        calendar.addEventToMonth(calEvent3);
-        calendar.addEventToMonth(calEvent);
-        calendar.addEventToMonth(calEvent2);
+        CalEvent calEvent = new CalEvent("event1", TestHelper.dateTimeFrom("20200101T00:00"), TestHelper.dateTimeFrom("20200101T03:00"));
+        CalEvent calEvent2 = new CalEvent("event2", TestHelper.dateTimeFrom("20200101T05:00"), TestHelper.dateTimeFrom("20200101T07:00"));
+        CalEvent calEvent3 = new CalEvent("event3", TestHelper.dateTimeFrom("20200101T09:00"), TestHelper.dateTimeFrom("20200101T11:00"));
+        CalEvent calEvent4 = new CalEvent("event4", TestHelper.dateTimeFrom("20200102T09:00"), TestHelper.dateTimeFrom("20200102T11:00"));
 
+        calendar.addEvent(calEvent3);
+        calendar.addEvent(calEvent);
+        calendar.addEvent(calEvent2);
+        calendar.addEvent(calEvent4);
 
-
+        // Events in a month should be ordered according to the start time
         Assertions.assertEquals(calendar.getMonths().size(), 1);
-        Assertions.assertEquals(calendar.getMonths().get(0).getEvents().get(0).getName(), "benis");
-        Assertions.assertEquals(calendar.getMonths().get(0).getEvents().get(1).getName(), "benis1");
-        Assertions.assertEquals(calendar.getMonths().get(0).getEvents().get(2).getName(), "benis2");
+
+        List<CalEvent> events = calendar.getEventsOfMonth("01-2020");
+        Assertions.assertEquals(events.size(), 4);
+        Assertions.assertEquals(events.get(0).getName(), "event1");
+        Assertions.assertEquals(events.get(1).getName(), "event2");
+        Assertions.assertEquals(events.get(2).getName(), "event3");
+        Assertions.assertEquals(events.get(3).getName(), "event4");
+
+        // Should throw an exception if the event is invalid or overlaps
+        CalEvent calEvent5 = new CalEvent("event5", TestHelper.dateTimeFrom("20200101T02:00"), TestHelper.dateTimeFrom("20200101T04:00"));
+        CalEvent calEvent6 = new CalEvent("", TestHelper.dateTimeFrom("20200102T02:00"), TestHelper.dateTimeFrom("20200102T04:00"));
+
+        Assertions.assertThrows(Exception.class, () -> calendar.addEvent(calEvent5));
+        Assertions.assertThrows(Exception.class, () -> calendar.addEvent(calEvent6));
     }
 
     @Test
-    void canDeleteEvent(){
+    void canDeleteEvent() throws Exception {
         Calendar calendar = new Calendar();
-        CalEvent event1 = new CalEvent("benis", dateTime("20201218T18:00"), dateTime("20201219T18:00"));
-        CalEvent event2 = new CalEvent("benis1", dateTime("20211218T18:00"), dateTime("20221218T18:00"));
-        calendar.addEventToMonth(event1);
-        calendar.addEventToMonth(event1);
-        calendar.addEventToMonth(event2);
-        calendar.deleteEvent(event1);
-        calendar.deleteEvent(event2);
-        calendar.deleteEvent(event1);
+        CalEvent calEvent = new CalEvent("event1", TestHelper.dateTimeFrom("20200101T00:00"), TestHelper.dateTimeFrom("20200101T03:00"));
+        CalEvent calEvent2 = new CalEvent("event2", TestHelper.dateTimeFrom("20200101T05:00"), TestHelper.dateTimeFrom("20200101T07:00"));
+        CalEvent calEvent3 = new CalEvent("event3", TestHelper.dateTimeFrom("20200101T09:00"), TestHelper.dateTimeFrom("20200101T11:00"));
 
+        calendar.addEvent(calEvent);
+        calendar.addEvent(calEvent2);
+        calendar.addEvent(calEvent3);
+
+        calendar.deleteEvent(calEvent);
+        calendar.deleteEvent(calEvent2);
+        Assertions.assertEquals(calendar.getMonths().size() , 1);
+        Assertions.assertEquals(calendar.getEventsOfMonth("01-2020").size(), 1);
+
+        // Month object should be deleted once the last event of the month is deleted
+        calendar.deleteEvent(calEvent3);
         Assertions.assertEquals(calendar.getMonths().size() , 0);
     }
 
     @Test
-    void canUpdateEvent(){
+    void canUpdateEvent() throws Exception {
         Calendar calendar = new Calendar();
-        CalEvent event2 = new CalEvent("benis1", dateTime("20211218T18:00"), dateTime("20221218T18:00"));
-        CalEvent event3 = new CalEvent("benis1", dateTime("20201218T18:00"), dateTime("20221218T18:00"));
-        calendar.addEventToMonth(event2);
-        calendar.editEvent(event2, event3);
+        CalEvent event1 = new CalEvent("event1", TestHelper.dateTimeFrom("20200101T09:00"), TestHelper.dateTimeFrom("20200101T11:00"));
+        CalEvent event2 = new CalEvent("event2", TestHelper.dateTimeFrom("20200101T09:00"), TestHelper.dateTimeFrom("20200101T11:50"));
+        calendar.addEvent(event1);
+        calendar.updateEvent(event1, event2);
 
-        Assertions.assertEquals(event3.getMonthYear(), "12-2020");
-    }
+        List<CalEvent> events = calendar.getEventsOfMonth(event2.getMonthYear());
 
-    @Test
-    void calEventIsValid(){
-        CalEvent calEvent = new CalEvent("benis", dateTime("20201218T18:00"), dateTime("20211218T18:00"));
-        Assertions.assertTrue(calEvent.isValid());
-    }
+        Assertions.assertEquals(events.size(), 1);
+        Assertions.assertEquals(events.get(0).getEndTime().getMinute(), 50);
 
-    @Test
-    void calEventIsInvalid(){
-        // startTime n endTime is same
-        CalEvent calEvent = new CalEvent("benis", dateTime("20201218T18:00"), dateTime("20201218T18:00"));
-        // startTime is after endTime
-        CalEvent calEvent2 = new CalEvent("benis", dateTime("20211218T18:00"), dateTime("20201218T18:00"));
-        // name is empty
-        CalEvent calEvent3 = new CalEvent("", dateTime("20201218T18:00"), dateTime("20211218T18:00"));
+        // Should throw an exception if the new event is invalid, and the old event should stay unchanged
+        CalEvent event3 = new CalEvent("event3", TestHelper.dateTimeFrom("20200101T09:00"), TestHelper.dateTimeFrom("20200101T00:50"));
+        Assertions.assertThrows(Exception.class, () -> calendar.updateEvent(event2, event3));
 
-        Assertions.assertFalse(calEvent.isValid());
-        Assertions.assertFalse(calEvent2.isValid());
-        Assertions.assertFalse(calEvent3.isValid());
+        events = calendar.getEventsOfMonth(event2.getMonthYear());
+
+        Assertions.assertEquals(events.size(), 1);
+        Assertions.assertEquals(events.get(0).getEndTime().getMinute(), 50);
     }
 
     @Test
     void checkDateTime(){
         ZonedDateTime m ;
-        m = dateTime("20200912T18:00");
+        m = TestHelper.dateTimeFrom("20200912T18:00");
 
         Assertions.assertEquals(m, ZonedDateTime.of(2020,9, 12, 18, 0, 0, 0, ZoneId.of("+01:00")));
-    }
-
-    @Test
-    void checkIntersectmethod(){
-        Calendar calendar = new Calendar();
-        CalEvent event2 = new CalEvent("benis1", dateTime("20211218T16:00"), dateTime("20211218T17:00"));
-        CalEvent event3 = new CalEvent("benis1", dateTime("20211218T16:00"), dateTime("20211218T18:00"));
-        //CalEvent event4 = new CalEvent("benis1", dateTime("20211218T17:00"), dateTime("20211218T20:00"));
-        calendar.addEventToMonth(event2);
-        calendar.addEventToMonth(event3);
-
-        //Assertions.assertEquals(kalendar.isIntersect(event3), true);
-        //Assertions.assertEquals(kalendar.isIntersect(event4), false);
-
-    }
-
-
-    // yyyymmddThh:mm
-    private ZonedDateTime dateTime(String dateTime){
-        if(dateTime.length() != 14){
-            System.out.println("Error Wrong dateTime Format");
-            return ZonedDateTime.now();
-        }
-        String time = dateTime.substring(0, 4) + "-" + dateTime.substring(4, 6) + "-" + dateTime.substring(6, 8)
-                + "T" + dateTime.substring(9, 11) + ":" + dateTime.substring(12, 14) + ":00+01:00";
-        return ZonedDateTime.parse(time, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-
     }
 }
