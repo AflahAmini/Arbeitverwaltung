@@ -1,7 +1,7 @@
 package arbyte.controllers;
 
 import arbyte.models.CalEvent;
-import arbyte.models.Kalendar;
+import arbyte.models.Calendar;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTimePicker;
 import javafx.event.ActionEvent;
@@ -32,13 +32,11 @@ public class AddEventController {
         ZonedDateTime eStartTime = ZonedDateTime.parse(eventStartTime.toString(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         ZonedDateTime eEndTime = ZonedDateTime.parse(eventStartTime.toString(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 
-
-
         CalEvent calEvent = new CalEvent(name, eStartTime, eEndTime);
 
-        Kalendar kalendar = new Kalendar();
-        kalendar.addEventToMonth(calEvent);
-        kalendar.toJson();
+        Calendar calendar = new Calendar();
+        // calendar.addEventToMonth(calEvent);
+        calendar.toJson();
     }
 
     public void cancelButton(ActionEvent action){

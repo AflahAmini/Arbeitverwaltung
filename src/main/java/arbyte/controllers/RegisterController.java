@@ -1,6 +1,7 @@
 package arbyte.controllers;
 
 import arbyte.helper.HttpRequestHandler;
+import arbyte.helper.RequestType;
 import arbyte.helper.SceneHelper;
 import arbyte.models.User;
 import com.google.gson.Gson;
@@ -42,14 +43,16 @@ public class RegisterController {
         error.setText("");
     }
 
-    public void registerButton(ActionEvent Event){
+    public void registerButton(){
         User user = new User(emailField.getText(), passField.getText(), conpassField.getText());
 
         if (user.isValid()) {
             btnCancel.setDisable(true);
             btnRegister.setDisable(true);
 
-            HttpRequestHandler.postRequest("/register", user.toJson())
+            HttpRequestHandler reqHandler = HttpRequestHandler.getInstance();
+
+            reqHandler.request(RequestType.POST, "/register", user.toJson())
                 .thenAccept((response) -> {
                     btnCancel.setDisable(false);
                     btnRegister.setDisable(false);
@@ -59,8 +62,10 @@ public class RegisterController {
 
                     if (success) {
                         String accessToken = responseBody.get("accessToken").getAsString();
+                        String refreshToken = responseBody.get("refreshToken").getAsString();
 
-                        System.out.println(accessToken);
+                        reqHandler.setAccessToken(accessToken);
+                        reqHandler.setRefreshToken(refreshToken);
 
                         Platform.runLater(SceneHelper::showMainPage);
                     } else {
@@ -80,7 +85,7 @@ public class RegisterController {
         }
     }
 
-    public void switchToLogIn(ActionEvent Event){
+    public void switchToLogIn(){
         SceneHelper.showLogInPage();
     }
 
