@@ -14,11 +14,6 @@ import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 public class HttpRequestHandler {
-    //static
-    private static String domain = "http://localhost:";
-    private static int port = 3000;
-
-
 
     private static HttpRequestHandler instance = null;
 
@@ -120,10 +115,11 @@ public class HttpRequestHandler {
     private HttpRequest.Builder defaultBuilder(String path) {
         // URL params
         String domain = "http://localhost:";
+        String startingPoint = "/api";
         int port = 3000;
 
         return  HttpRequest.newBuilder()
-                .uri(URI.create(domain + port + path))
+                .uri(URI.create(domain + port + startingPoint + path))
                 .version(HttpClient.Version.HTTP_1_1)
                 .header("Content-Type", "application/json")
                 .timeout(Duration.ofSeconds(10));
