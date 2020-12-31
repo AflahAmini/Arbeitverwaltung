@@ -1,16 +1,24 @@
 package arbyte.helper;
 
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+
 import java.util.concurrent.CompletableFuture;
 
 public class HttpRequestHandler {
+    //static
+    private static String domain = "http://localhost:";
+    private static int port = 3000;
+
+
 
     private static HttpRequestHandler instance = null;
 
