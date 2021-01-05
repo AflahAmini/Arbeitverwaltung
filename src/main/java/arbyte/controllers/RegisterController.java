@@ -76,7 +76,6 @@ public class RegisterController {
                     }
                 }).exceptionally( e -> {
                     setError("Unable to connect to the server");
-
                     btnCancel.setDisable(false);
                     btnRegister.setDisable(false);
 
