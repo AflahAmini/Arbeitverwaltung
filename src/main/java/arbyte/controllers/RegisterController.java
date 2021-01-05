@@ -1,19 +1,20 @@
 package arbyte.controllers;
 
-import arbyte.helper.HttpRequestHandler;
-import arbyte.helper.RequestType;
+import arbyte.networking.HttpRequestHandler;
+import arbyte.networking.RequestType;
 import arbyte.helper.SceneHelper;
 import arbyte.models.User;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;

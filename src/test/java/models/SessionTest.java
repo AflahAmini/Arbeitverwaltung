@@ -7,14 +7,14 @@ import org.junit.jupiter.api.Test;
 public class SessionTest {
     @Test
     void shouldReturnElapsedTimeFromStart() {
-        Session session = new Session();
+        Session session = new Session(0);
         try {
             Thread.sleep(2000);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        Assertions.assertEquals(session.getDuration().getSeconds(), 2);
+        Assertions.assertEquals(session.getActiveDuration().getSeconds(), 2);
 
         try {
             Thread.sleep(1000);
@@ -22,12 +22,12 @@ public class SessionTest {
             e.printStackTrace();
         }
 
-        Assertions.assertEquals(session.getDuration().getSeconds(), 3);
+        Assertions.assertEquals(session.getActiveDuration().getSeconds(), 3);
     }
 
     @Test
     void shouldTogglePause() {
-        Session session = new Session();
+        Session session = new Session(0);
         session.toggleSessionPause();
 
         try {
@@ -37,7 +37,8 @@ public class SessionTest {
         }
 
         Assertions.assertTrue(session.isPaused());
-        Assertions.assertEquals(session.getDuration().getSeconds(), 0);
+        Assertions.assertEquals(session.getActiveDuration().getSeconds(), 0);
+        Assertions.assertEquals(session.getPausedDuration().getSeconds(), 2);
 
         session.toggleSessionPause();
 
@@ -48,6 +49,7 @@ public class SessionTest {
         }
 
         Assertions.assertFalse(session.isPaused());
-        Assertions.assertEquals(session.getDuration().getSeconds(), 1);
+        Assertions.assertEquals(session.getActiveDuration().getSeconds(), 1);
+        Assertions.assertEquals(session.getPausedDuration().getSeconds(), 2);
     }
 }
