@@ -1,13 +1,10 @@
 package arbyte.controllers;
 
-import arbyte.helper.HttpRequestHandler;
-import arbyte.helper.RequestType;
-import arbyte.helper.SceneHelper;
+import arbyte.helper.*;
 import arbyte.models.User;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
@@ -56,27 +53,34 @@ public class LoginController {
                     btnRegister.setDisable(false);
 
                     JsonObject responseBody = new Gson().fromJson(response.body(), JsonObject.class);
-                    boolean success = responseBody.get("success").getAsBoolean();
 
-                    if (success) {
+                    if (response.statusCode() == 200) {
                         String accessToken = responseBody.get("accessToken").getAsString();
                         String refreshToken = responseBody.get("refreshToken").getAsString();
 
                         reqHandler.setAccessToken(accessToken);
                         reqHandler.setRefreshToken(refreshToken);
 
+                        Hasher.storeCredentials("userInfo/userInfo.txt", emailField.getText(), passField.getText());
+
                         Platform.runLater(SceneHelper::showMainPage);
                     } else {
-                        String message = responseBody.get("message").getAsString();
+                        String message = responseBody.get("error").getAsString();
 
                         setError(message);
                     }
             }).exceptionally( e -> {
-                setError("Unable to connect to the server");
 
-                btnLogin.setDisable(false);
-                btnRegister.setDisable(false);
+                if(Hasher.getEmailPasswordHash("userInfo/userInfo.txt", emailField.getText(), passField.getText())){
+                    Platform.runLater(SceneHelper::showMainPage);
+                }
+                else {
+                    setError("Unable to connect to the server");
 
+                    btnLogin.setDisable(false);
+                    btnRegister.setDisable(false);
+
+                }
                 return null;
             } );
         } else {
@@ -93,5 +97,4 @@ public class LoginController {
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         executorService.schedule(() -> error.setText(""), 3, TimeUnit.SECONDS);
     }
-
 }

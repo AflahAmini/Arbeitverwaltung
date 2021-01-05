@@ -2,3 +2,4 @@
 /.idea/
 *.iml
 /src/test/java/GeneralTest.java
+/src/main/resources/userInfo/
