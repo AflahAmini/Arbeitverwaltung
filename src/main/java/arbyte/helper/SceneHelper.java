@@ -39,10 +39,19 @@ public class SceneHelper {
             return FXMLLoader.load(loader.getURL(filename));
         }
         catch(Exception e){
-            System.out.println(filename + "view failed");
+            System.out.println(filename + " view failed");
             e.printStackTrace();
         }
         return new BorderPane();
+    }
+
+    public static FXMLLoader getFXMLLoader(String filename) {
+        try {
+            return new FXMLLoader(new ResourceLoader().getURL(filename));
+        } catch (Exception e) {
+            System.out.println(filename + " getFXMLLoader failed");
+        }
+        return new FXMLLoader();
     }
 
     private static void switchSceneResource(String filename,  int height, int width){
