@@ -19,7 +19,7 @@ public class MainController {
 
     @FXML
     public void initialize() {
-        curSession = new Session();
+        curSession = new Session(1);
         changeView("fxml/CalendarView.fxml");
 
     }

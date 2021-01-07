@@ -6,7 +6,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import javafx.util.Pair;
 
 public class SceneHelper {
 
@@ -37,7 +36,7 @@ public class SceneHelper {
     public static Parent getParentFromFXML(String filename) {
         try {
             ResourceLoader loader = new ResourceLoader();
-            return FXMLLoader.load(loader.getURLFromResource(filename));
+            return FXMLLoader.load(loader.getURL(filename));
         }
         catch(Exception e){
             System.out.println(filename + "view failed");

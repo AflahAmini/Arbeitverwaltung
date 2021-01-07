@@ -82,7 +82,6 @@ public class LoginController {
 
                     btnLogin.setDisable(false);
                     btnRegister.setDisable(false);
-
                 }
                 return null;
             } );

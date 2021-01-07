@@ -13,24 +13,15 @@ public class Hasher {
 		ResourceLoader rl = new ResourceLoader();
 
 		try {
-			File file = rl.getFileFromResource(filepath);
+			File file = rl.getFileOrCreate(filepath);
 			FileWriter fw = new FileWriter(file, false);
 			bw = new BufferedWriter(fw);
 
 			String emailpasswordHash = getDigestFrom(email + password);
 
-
-			// checks if the file exist
-			// create file if not exist?
-			if(file.exists()) {
-				bw.write(emailpasswordHash);
-				bw.newLine();
-				bw.close();
-
-			}
-			else{
-				System.out.println("Error : File does not exist");
-			}
+			bw.write(emailpasswordHash);
+			bw.newLine();
+			bw.close();
 		}
 		catch(Exception e){
 			System.out.println("Error inputting User Info into File");
@@ -54,20 +45,19 @@ public class Hasher {
 	public static boolean getEmailPasswordHash(String filepath, String inputEmail, String inputPassword){
 		try {
 			ResourceLoader loader = new ResourceLoader();
-			File textFile = loader.getFileFromResource(filepath);
+			File textFile = loader.getFile(filepath);
+
+			// File must exist after this line
+			if (!textFile.exists())
+				return false;
+
 			Scanner scanner = new Scanner(textFile);
+			Scanner lineScanner = new Scanner(scanner.nextLine());
+			String inputHash = Hasher.getDigestFrom(inputEmail + inputPassword);
 
-			// loop through each line
-			while (scanner.hasNextLine() ){
-				String line = scanner.nextLine();
-
-				Scanner subscanner = new Scanner(line);
-				String inputHash = Hasher.getDigestFrom(inputEmail + inputPassword);
-
-				// returns line if email matches
-				if(inputHash.equals(subscanner.next())){
-					return true;
-				}
+			// returns line if email matches
+			if(inputHash.equals(lineScanner.next())){
+				return true;
 			}
 		}
 		catch(Exception e){
@@ -75,7 +65,7 @@ public class Hasher {
 			e.printStackTrace();
 
 		}
-		// otherwise return empty string
+
 		return false;
 	}
 }
