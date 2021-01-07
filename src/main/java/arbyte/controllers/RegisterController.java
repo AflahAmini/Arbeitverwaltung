@@ -2,6 +2,7 @@ package arbyte.controllers;
 
 import arbyte.networking.HttpRequestHandler;
 import arbyte.networking.RequestType;
+import arbyte.helper.Hasher;
 import arbyte.helper.SceneHelper;
 import arbyte.models.User;
 import com.google.gson.Gson;
@@ -59,18 +60,19 @@ public class RegisterController {
                     btnRegister.setDisable(false);
 
                     JsonObject responseBody = new Gson().fromJson(response.body(), JsonObject.class);
-                    boolean success = responseBody.get("success").getAsBoolean();
 
-                    if (success) {
+                    if (response.statusCode() == 200) {
                         String accessToken = responseBody.get("accessToken").getAsString();
                         String refreshToken = responseBody.get("refreshToken").getAsString();
 
                         reqHandler.setAccessToken(accessToken);
                         reqHandler.setRefreshToken(refreshToken);
 
+                        Hasher.storeCredentials("userInfo/userInfo.txt", emailField.getText(), passField.getText());
+
                         Platform.runLater(SceneHelper::showMainPage);
                     } else {
-                        String message = responseBody.get("message").getAsString();
+                        String message = responseBody.get("error").getAsString();
 
                         setError(message);
                     }
