@@ -4,33 +4,56 @@ import java.time.Duration;
 import java.time.Instant;
 
 public class Session {
-    private Instant lastRecordedInstant;
-    private Duration totalDuration;
+    private final int userId;
+    private Instant lastActiveInstant;
+    private Instant lastPausedInstant;
+
+    private Duration totalActiveDuration;
+    private Duration totalPausedDuration;
 
     private boolean isPaused;
 
-    public Session() {
-        this.lastRecordedInstant = Instant.now();
-        this.totalDuration = Duration.ZERO;
+    public Session(int userId) {
+        this.userId = userId;
+        this.lastActiveInstant = Instant.now();
+        this.lastPausedInstant = Instant.now();
+
+        this.totalActiveDuration = Duration.ZERO;
+        this.totalPausedDuration = Duration.ZERO;
 
         this.isPaused = false;
 
-        System.out.println("Session has started at " + lastRecordedInstant);
+        System.out.println("Session has started at " + lastActiveInstant);
+    }
+
+    public int getUserId() {
+        return userId;
     }
 
     public boolean isPaused() {
         return isPaused;
     }
 
-    // Returns the total duration of the current session
-    public Duration getDuration() {
+    // Returns the total active duration of the current session
+    public Duration getActiveDuration() {
         // Add to the duration then reassign the last recorded instant as now
         if (!isPaused) {
-            totalDuration = totalDuration.plus(Duration.between(lastRecordedInstant, Instant.now()));
-            lastRecordedInstant = Instant.now();
+            totalActiveDuration = totalActiveDuration.plus(Duration.between(lastActiveInstant, Instant.now()));
+            lastActiveInstant = Instant.now();
         }
 
-        return totalDuration;
+        return totalActiveDuration;
+    }
+
+    // Returns the total paused duration of the current session
+    public Duration getPausedDuration() {
+        // Similar to getActiveDuration but while paused
+        if (isPaused) {
+            totalPausedDuration = totalPausedDuration.plus(Duration.between(lastPausedInstant, Instant.now()));
+            lastPausedInstant = Instant.now();
+        }
+
+        return totalPausedDuration;
     }
 
     // Pauses or unpauses the session
@@ -38,11 +61,13 @@ public class Session {
         isPaused = !isPaused;
 
         if (isPaused) {
-            // Stores the total duration right until the session is paused
-            totalDuration = totalDuration.plus(Duration.between(lastRecordedInstant, Instant.now()));
+            // Stores the total active duration right until the session is paused
+            totalActiveDuration = totalActiveDuration.plus(Duration.between(lastActiveInstant, Instant.now()));
+            lastPausedInstant = Instant.now();
         } else {
-            // Otherwise set the lastRecordedInstant to the point when the session is unpaused
-            lastRecordedInstant = Instant.now();
+            // Stores the total paused duration right until the session is unpaused
+            totalPausedDuration = totalPausedDuration.plus(Duration.between(lastPausedInstant, Instant.now()));
+            lastActiveInstant = Instant.now();
         }
     }
 }

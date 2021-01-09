@@ -4,11 +4,10 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<JFXButton alignment="TOP_LEFT" contentDisplay="GRAPHIC_ONLY" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#addButton" ripplerFill="WHITE" style="-fx-border-color: grey; -fx-background-color: #1D3557;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="arbyte.controllers.CalendarButtonController">
+<JFXButton alignment="TOP_LEFT" contentDisplay="GRAPHIC_ONLY" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#addButton" ripplerFill="WHITE" style="-fx-background-color: #1D3557; -fx-background-radius: 0;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="arbyte.controllers.CalendarButtonController">
    <padding>
       <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
    </padding>
@@ -23,11 +22,7 @@
                   <Font size="15.0" />
                </font>
             </Text>
-            <HBox alignment="CENTER" layoutY="65.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="19.0" prefWidth="67.0" spacing="3.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-               <children>
-                  <Circle fill="#ed8021" radius="3.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
-               </children>
-            </HBox>
+            <HBox fx:id="eventCount" alignment="CENTER" layoutY="65.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="19.0" prefWidth="67.0" spacing="3.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
          </children>
       </AnchorPane>
    </graphic>

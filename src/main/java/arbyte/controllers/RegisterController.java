@@ -1,14 +1,13 @@
 package arbyte.controllers;
 
+import arbyte.networking.HttpRequestHandler;
+import arbyte.networking.RequestType;
 import arbyte.helper.Hasher;
-import arbyte.helper.HttpRequestHandler;
-import arbyte.helper.RequestType;
 import arbyte.helper.SceneHelper;
 import arbyte.models.User;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;

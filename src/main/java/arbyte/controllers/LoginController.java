@@ -1,6 +1,9 @@
 package arbyte.controllers;
 
-import arbyte.helper.*;
+import arbyte.networking.HttpRequestHandler;
+import arbyte.networking.RequestType;
+import arbyte.helper.SceneHelper;
+import arbyte.helper.Hasher;
 import arbyte.models.User;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -79,7 +82,6 @@ public class LoginController {
 
                     btnLogin.setDisable(false);
                     btnRegister.setDisable(false);
-
                 }
                 return null;
             } );

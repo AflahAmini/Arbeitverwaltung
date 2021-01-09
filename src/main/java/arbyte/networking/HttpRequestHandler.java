@@ -1,4 +1,4 @@
-package arbyte.helper;
+package arbyte.networking;
 
 
 import com.google.gson.Gson;
@@ -117,6 +117,7 @@ public class HttpRequestHandler {
         String domain = "http://localhost:";
         String startingPoint = "/api";
         int port = 3000;
+        String subdomain = "/api";
 
         return  HttpRequest.newBuilder()
                 .uri(URI.create(domain + port + startingPoint + path))

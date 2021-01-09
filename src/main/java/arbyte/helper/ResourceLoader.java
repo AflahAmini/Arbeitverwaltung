@@ -1,23 +1,33 @@
 package arbyte.helper;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class ResourceLoader {
-    public File getFileFromResource(String filename) throws Exception {
-        return new File(getURLFromResource(filename).toURI());
-
+    public File getFile(String filename) {
+        return Paths.get(getPathFromRelative(filename)).toFile();
     }
 
-    public URL getURLFromResource(String filename)throws IllegalArgumentException{
-        ClassLoader cl = getClass().getClassLoader();
-        URL url = cl.getResource(filename);
-        if(url == null){
-            throw new IllegalArgumentException("File not found : " + filename);
-        }
-        else{
-            return url;
+    public File getFileOrCreate(String filename) throws IOException {
+        File f = getFile(filename);
+        File parentDir = f.getParentFile();
+
+        Files.createDirectories(parentDir.toPath());
+        if (f.createNewFile()) {
+            System.out.println("File is missing, creating file...");
         }
 
+        return f;
+    }
+
+    public URL getURL(String filename) throws Exception {
+        return Paths.get(getPathFromRelative(filename)).toUri().toURL();
+    }
+
+    private String getPathFromRelative(String relPath) {
+        return "src/main/resources/" + relPath;
     }
 }
