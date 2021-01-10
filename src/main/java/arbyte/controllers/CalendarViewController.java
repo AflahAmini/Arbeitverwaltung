@@ -1,6 +1,7 @@
 package arbyte.controllers;
 
 import arbyte.helper.SceneHelper;
+import arbyte.models.Calendar;
 import com.jfoenix.controls.JFXButton;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -9,12 +10,14 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
-import java.util.Calendar;
 
 public class CalendarViewController {
-    private int year = Calendar.getInstance().get(Calendar.YEAR);
-    private int month = Calendar.getInstance().get(Calendar.MONTH)+1;
+    private int year = LocalDateTime.now().getYear();
+    private int month = LocalDateTime.now().getMonthValue();
+
+    private Calendar calendar;
 
     @FXML //CalendarView
     JFXButton btnPrevious;
@@ -24,6 +27,13 @@ public class CalendarViewController {
     Label labelMonthYear;
     @FXML
     GridPane gridCalendar;
+
+    public CalendarViewController() {
+        if (calendar == null) {
+            // This needs to read from a json later
+            calendar = new Calendar();
+        }
+    }
 
     @FXML
     public void initialize(){
@@ -70,7 +80,9 @@ public class CalendarViewController {
                     gridCalendar.add(btnLoader.load(), incrementX, incrementY);
 
                     CalendarButtonController btnController = btnLoader.getController();
-                    btnController.initInfo(counter + 1, 3);
+                    String monthYear = String.format("%02d-%d", month, year);
+
+                    btnController.initInfo(counter + 1, calendar.getEventsOfMonth(monthYear).size());
 
                     incrementX++;
                     counter++;
