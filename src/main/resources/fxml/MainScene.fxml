@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.jfoenix.controls.JFXButton?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
@@ -25,6 +26,9 @@
                      <VBox.margin>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
                      </VBox.margin>
+                     <font>
+                        <Font size="14.0" />
+                     </font>
                   </Label>
                   <Label alignment="CENTER_RIGHT" text="Status" textFill="WHITE">
                      <font>
@@ -33,30 +37,21 @@
                      <padding>
                         <Insets bottom="2.0" top="2.0" />
                      </padding></Label>
-                  <Label alignment="CENTER_RIGHT" layoutX="74.0" layoutY="180.0" text="Projects" textFill="WHITE">
+                  <JFXButton text="Projects" textFill="WHITE">
                      <font>
                         <Font size="14.0" />
                      </font>
-                     <padding>
-                        <Insets bottom="2.0" top="2.0" />
-                     </padding>
-                  </Label>
-                  <Label alignment="CENTER_RIGHT" layoutX="74.0" layoutY="145.0" text="Calendar" textFill="WHITE">
+                  </JFXButton>
+                  <JFXButton layoutX="64.0" layoutY="169.0" text="Calendar" textFill="WHITE">
                      <font>
                         <Font size="14.0" />
                      </font>
-                     <padding>
-                        <Insets bottom="2.0" top="2.0" />
-                     </padding>
-                  </Label>
-                  <Label alignment="CENTER_RIGHT" layoutX="74.0" layoutY="163.0" text="Weekly Report" textFill="WHITE">
+                  </JFXButton>
+                  <JFXButton layoutX="64.0" layoutY="267.0" text="Weekly Report" textFill="WHITE">
                      <font>
                         <Font size="14.0" />
                      </font>
-                     <padding>
-                        <Insets bottom="2.0" top="2.0" />
-                     </padding>
-                  </Label>
+                  </JFXButton>
                </children>
                <padding>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
