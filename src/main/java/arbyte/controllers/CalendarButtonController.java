@@ -3,10 +3,14 @@ package arbyte.controllers;
 import arbyte.helper.SceneHelper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
+
+import java.io.IOException;
 
 public class CalendarButtonController {
 
@@ -40,8 +44,8 @@ public class CalendarButtonController {
         }
     }
 
-    public void addButton(ActionEvent Event){
-        SceneHelper.showAddEvent();
+    public void addButton(ActionEvent Event) throws IOException {
+        MainController.getInstance().changeView("fxml/EventView.fxml");
     }
 
 }

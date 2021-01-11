@@ -26,6 +26,7 @@ public class Session {
         System.out.println("Session has started at " + lastActiveInstant);
     }
 
+
     public int getUserId() {
         return userId;
     }
@@ -69,5 +70,9 @@ public class Session {
             totalPausedDuration = totalPausedDuration.plus(Duration.between(lastPausedInstant, Instant.now()));
             lastActiveInstant = Instant.now();
         }
+    }
+
+    public void falseSessionPause(){
+        isPaused = false;
     }
 }
