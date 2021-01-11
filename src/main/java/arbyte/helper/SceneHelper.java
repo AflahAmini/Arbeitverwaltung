@@ -9,6 +9,8 @@ import javafx.stage.Stage;
 
 public class SceneHelper {
 
+    private static final ResourceLoader resourceLoader = new ResourceLoader();
+
     private static Stage currentStage;
 
     public static void initialise(Stage stage){
@@ -35,8 +37,7 @@ public class SceneHelper {
 
     public static Parent getParentFromFXML(String filename) {
         try {
-            ResourceLoader loader = new ResourceLoader();
-            return FXMLLoader.load(loader.getURL(filename));
+            return FXMLLoader.load(resourceLoader.getURL(filename));
         }
         catch(Exception e){
             System.out.println(filename + " view failed");
@@ -47,7 +48,7 @@ public class SceneHelper {
 
     public static FXMLLoader getFXMLLoader(String filename) {
         try {
-            return new FXMLLoader(new ResourceLoader().getURL(filename));
+            return new FXMLLoader(resourceLoader.getURL(filename));
         } catch (Exception e) {
             System.out.println(filename + " getFXMLLoader failed");
         }
