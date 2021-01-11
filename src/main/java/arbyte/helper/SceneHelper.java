@@ -4,6 +4,7 @@ package arbyte.helper;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
@@ -18,7 +19,6 @@ public class SceneHelper {
 
     public static void showLogInPage(){
         SceneHelper.switchSceneResource("fxml/LoginPage.fxml", 600, 400);
-
     }
 
     public static void showRegisterPage(){
@@ -53,6 +53,8 @@ public class SceneHelper {
         }
         return new FXMLLoader();
     }
+
+
 
     private static void switchSceneResource(String filename,  int height, int width){
             Scene scene = new Scene(getParentFromFXML(filename), height, width);
