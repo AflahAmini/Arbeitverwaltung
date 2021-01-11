@@ -9,8 +9,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import org.jnativehook.GlobalScreen;
 
-import java.time.Instant;
-
 public class MainController {
 
     private Session curSession;
@@ -19,13 +17,14 @@ public class MainController {
     AnchorPane mainView;
 
     @FXML
-    Label labelMonthYear;
+    Label labelStatus;
 
     @FXML
     public void initialize() {
         curSession = new Session(1);
         changeView("fxml/CalendarView.fxml");
         mainController = this;
+        labelStatus.setText("Status : Active");
         try {
             GlobalScreen.registerNativeHook();
             GlobalMouseListener mouse = new GlobalMouseListener();
@@ -53,5 +52,9 @@ public class MainController {
     }
     public Session getCurSession() {
         return curSession;
+    }
+
+    public void setStatus(boolean isActive){
+        labelStatus.setText("Status : " + (isActive ? "Active" : "Inactive") );
     }
 }

@@ -71,8 +71,4 @@ public class Session {
             lastActiveInstant = Instant.now();
         }
     }
-
-    public void falseSessionPause(){
-        isPaused = false;
-    }
 }
