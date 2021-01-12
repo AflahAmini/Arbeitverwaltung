@@ -66,7 +66,10 @@ public class LoginController {
 
                         Hasher.storeCredentials("userInfo/userInfo.txt", emailField.getText(), passField.getText());
 
-                        Platform.runLater(SceneHelper::showMainPage);
+                        Platform.runLater(() -> {
+                            SceneHelper.showMainPage();
+                            MainController.getInstance().flash("Login successful!", false);
+                        });
                     } else {
                         String message = responseBody.get("error").getAsString();
 
@@ -75,7 +78,10 @@ public class LoginController {
             }).exceptionally( e -> {
 
                 if(Hasher.getEmailPasswordHash("userInfo/userInfo.txt", emailField.getText(), passField.getText())){
-                    Platform.runLater(SceneHelper::showMainPage);
+                    Platform.runLater(() -> {
+                        SceneHelper.showMainPage();
+                        MainController.getInstance().flash("Logged in using last known credentials.", false);
+                    });
                 }
                 else {
                     setError("Unable to connect to the server");

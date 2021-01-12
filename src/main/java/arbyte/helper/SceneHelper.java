@@ -1,14 +1,16 @@
 package arbyte.helper;
 
-
+import arbyte.controllers.MainController;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 public class SceneHelper {
+
+    private static final ResourceLoader resourceLoader = new ResourceLoader();
 
     private static Stage currentStage;
 
@@ -35,8 +37,7 @@ public class SceneHelper {
 
     public static Parent getParentFromFXML(String filename) {
         try {
-            ResourceLoader loader = new ResourceLoader();
-            return FXMLLoader.load(loader.getURL(filename));
+            return FXMLLoader.load(resourceLoader.getURL(filename));
         }
         catch(Exception e){
             System.out.println(filename + " view failed");
@@ -47,18 +48,16 @@ public class SceneHelper {
 
     public static FXMLLoader getFXMLLoader(String filename) {
         try {
-            return new FXMLLoader(new ResourceLoader().getURL(filename));
+            return new FXMLLoader(resourceLoader.getURL(filename));
         } catch (Exception e) {
             System.out.println(filename + " getFXMLLoader failed");
         }
         return new FXMLLoader();
     }
 
-
-
-    private static void switchSceneResource(String filename,  int height, int width){
-            Scene scene = new Scene(getParentFromFXML(filename), height, width);
-            currentStage.setScene(scene);
-            currentStage.show();
+    private static void switchSceneResource(String filename, int height, int width){
+        Scene scene = new Scene(getParentFromFXML(filename), height, width);
+        currentStage.setScene(scene);
+        currentStage.show();
     }
 }
