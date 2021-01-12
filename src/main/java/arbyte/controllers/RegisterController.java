@@ -68,7 +68,10 @@ public class RegisterController {
 
                         Hasher.storeCredentials("userInfo/userInfo.txt", emailField.getText(), passField.getText());
 
-                        Platform.runLater(SceneHelper::showMainPage);
+                        Platform.runLater(() -> {
+                            SceneHelper.showMainPage();
+                            MainController.getInstance().flash("Register successful!", false);
+                        });
                     } else {
                         String message = responseBody.get("error").getAsString();
 

@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.JFXComboBox?>
+<?import com.jfoenix.controls.JFXButton?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.paint.RadialGradient?>
-<?import javafx.scene.paint.Stop?>
-<?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
-
 
 <StackPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="arbyte.controllers.MainController">
    <children>
@@ -22,28 +20,41 @@
                <children>
                   <VBox alignment="TOP_CENTER" layoutX="431.0" prefHeight="400.0" prefWidth="169.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                        <Circle radius="46.0" stroke="#d17b0f" strokeType="INSIDE">
-                           <fill>
-                              <RadialGradient centerX="0.5" centerY="0.45631067961165045" radius="0.5">
-                                 <stops>
-                                    <Stop color="BLACK" />
-                                    <Stop color="BLACK" offset="0.007246376811594203" />
-                                    <Stop color="WHITE" offset="0.007246376811594203" />
-                                    <Stop color="WHITE" offset="1.0" />
-                                 </stops>
-                              </RadialGradient>
-                           </fill>
-                           <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </VBox.margin>
-                        </Circle>
+                        <ImageView fitHeight="92.0" fitWidth="96.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../images/image_error.png" />
+                           </image>
+                        </ImageView>
                         <Label text="User@mail.de" textFill="WHITE">
                            <VBox.margin>
                               <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
                            </VBox.margin>
+                           <font>
+                              <Font size="14.0" />
+                           </font>
                         </Label>
-                        <Label alignment="CENTER_RIGHT" text="Status" textFill="WHITE" />
-                        <JFXComboBox focusColor="WHITE" prefHeight="31.0" prefWidth="269.0" unFocusColor="#ffffff4d" />
+                        <Label alignment="CENTER_RIGHT" text="Status" textFill="WHITE">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                           <padding>
+                              <Insets bottom="2.0" top="2.0" />
+                           </padding></Label>
+                        <JFXButton text="Projects" textFill="WHITE">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </JFXButton>
+                        <JFXButton layoutX="64.0" layoutY="169.0" text="Calendar" textFill="WHITE">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </JFXButton>
+                        <JFXButton layoutX="64.0" layoutY="267.0" text="Weekly Report" textFill="WHITE">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </JFXButton>
                      </children>
                      <padding>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -63,7 +74,7 @@
       </HBox>
       <AnchorPane pickOnBounds="false" prefHeight="200.0" prefWidth="200.0">
          <children>
-            <VBox fx:id="containerFlash" layoutX="14.0" layoutY="14.0" prefHeight="370.0" prefWidth="322.0" spacing="10.0" />
+            <VBox fx:id="containerFlash" layoutX="14.0" layoutY="14.0" pickOnBounds="false" prefHeight="370.0" prefWidth="322.0" spacing="10.0" />
          </children>
       </AnchorPane>
    </children>

@@ -14,9 +14,9 @@
             <Image url="@../images/icon_error.png" />
          </image>
       </ImageView>
-      <HBox alignment="CENTER_LEFT" prefHeight="25.0" prefWidth="123.0" HBox.hgrow="ALWAYS">
+      <HBox alignment="CENTER_LEFT">
          <children>
-            <Label fx:id="labelMessage" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="472.0" text="Error Message!" textFill="WHITE">
+            <Label fx:id="labelMessage" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="1000.0" text="Error message here" textFill="WHITE">
                <font>
                   <Font name="System Bold" size="12.0" />
                </font>

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 public class SessionTest {
     @Test
     void shouldReturnElapsedTimeFromStart() {
-        Session session = new Session(0);
+        Session session = new Session();
         try {
             Thread.sleep(2000);
         } catch (Exception e) {
@@ -27,7 +27,7 @@ public class SessionTest {
 
     @Test
     void shouldTogglePause() {
-        Session session = new Session(0);
+        Session session = new Session();
         session.toggleSessionPause();
 
         try {

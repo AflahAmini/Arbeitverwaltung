@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.time.Instant;
 
 public class Session {
-    private final int userId;
     private Instant lastActiveInstant;
     private Instant lastPausedInstant;
 
@@ -13,8 +12,7 @@ public class Session {
 
     private boolean isPaused;
 
-    public Session(int userId) {
-        this.userId = userId;
+    public Session() {
         this.lastActiveInstant = Instant.now();
         this.lastPausedInstant = Instant.now();
 
@@ -24,11 +22,6 @@ public class Session {
         this.isPaused = false;
 
         System.out.println("Session has started at " + lastActiveInstant);
-    }
-
-
-    public int getUserId() {
-        return userId;
     }
 
     public boolean isPaused() {
