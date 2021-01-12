@@ -5,8 +5,6 @@ import arbyte.helper.SceneHelper;
 import arbyte.models.Session;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -36,6 +34,8 @@ public class MainController {
     Label labelSession;
     @FXML
     VBox containerFlash;
+    @FXML
+    Label labelStatus;
 
     @FXML
     public void initialize() {
@@ -51,6 +51,7 @@ public class MainController {
             Platform.runLater(() -> labelSession.setText(sessionMessage));
         }, 0, 1, TimeUnit.MINUTES);
 
+        labelStatus.setText("Status : Active");
         try {
             GlobalScreen.registerNativeHook();
             GlobalMouseListener mouse = new GlobalMouseListener();
@@ -111,5 +112,9 @@ public class MainController {
     private String getSessionDuration() {
         long sessionSeconds = curSession.getActiveDuration().getSeconds();
         return String.format("%02d:%02d", sessionSeconds / 3600, sessionSeconds / 60);
+    }
+
+    public void setStatus(boolean isActive){
+        labelStatus.setText("Status : " + (isActive ? "Active" : "Inactive") );
     }
 }
