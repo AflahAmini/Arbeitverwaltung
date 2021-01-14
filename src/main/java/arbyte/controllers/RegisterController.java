@@ -5,7 +5,6 @@ import arbyte.networking.RequestType;
 import arbyte.helper.Hasher;
 import arbyte.helper.SceneHelper;
 import arbyte.models.User;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -13,10 +12,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
+import org.junit.jupiter.api.Assertions;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.io.IOException;
+import java.util.concurrent.*;
 
 
 public class RegisterController {
@@ -53,37 +52,48 @@ public class RegisterController {
             HttpRequestHandler reqHandler = HttpRequestHandler.getInstance();
 
             reqHandler.request(RequestType.POST, "/register", user.toJson())
-                .thenAccept((response) -> {
-                    btnCancel.setDisable(false);
-                    btnRegister.setDisable(false);
+            .thenAccept((response) -> {
+                JsonObject responseBody = null;
+                try {
+                    responseBody = reqHandler.getResponseBodyJson(response);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-                    JsonObject responseBody = new Gson().fromJson(response.body(), JsonObject.class);
+                assert responseBody != null;
 
-                    if (response.statusCode() == 200) {
-                        String accessToken = responseBody.get("accessToken").getAsString();
-                        String refreshToken = responseBody.get("refreshToken").getAsString();
+                if (response.getStatusLine().getStatusCode() == 200) {
+                    String accessToken = responseBody.get("accessToken").getAsString();
+                    String refreshToken = responseBody.get("refreshToken").getAsString();
 
-                        reqHandler.setAccessToken(accessToken);
-                        reqHandler.setRefreshToken(refreshToken);
+                    reqHandler.setAccessToken(accessToken);
+                    reqHandler.setRefreshToken(refreshToken);
 
-                        Hasher.storeCredentials("userInfo/userInfo.txt", emailField.getText(), passField.getText());
+                    Hasher.storeCredentials("userInfo/userInfo.txt",
+                            emailField.getText(),
+                            passField.getText());
 
-                        Platform.runLater(() -> {
-                            SceneHelper.showMainPage();
-                            MainController.getInstance().flash("Register successful!", false);
-                        });
-                    } else {
-                        String message = responseBody.get("error").getAsString();
+                    Platform.runLater(() -> {
+                        SceneHelper.showMainPage();
+                        MainController.getInstance().flash("Register successful!", false);
+                    });
+                } else {
+                    String message = responseBody.get("error").getAsString();
 
-                        setError(message);
-                    }
-                }).exceptionally( e -> {
+                    setError(message);
+                }
+            }).exceptionally(e -> {
+                if (e instanceof AssertionError) {
+                    setError("Error while parsing response JSON!");
+                } else {
                     setError("Unable to connect to the server");
-                    btnCancel.setDisable(false);
-                    btnRegister.setDisable(false);
-
-                    return null;
-                });
+                    e.printStackTrace();
+                }
+                return null;
+            }).whenComplete((m, t) -> {
+                btnCancel.setDisable(false);
+                btnRegister.setDisable(false);
+            });
         } else {
             setError("Fields cannot be empty!");
         }

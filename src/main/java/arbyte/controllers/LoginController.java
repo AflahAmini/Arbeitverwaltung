@@ -14,6 +14,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 
+import java.io.IOException;
 import java.util.concurrent.*;
 
 public class LoginController {
@@ -50,47 +51,59 @@ public class LoginController {
 
             HttpRequestHandler reqHandler = HttpRequestHandler.getInstance();
 
-            reqHandler.request(RequestType.POST, "/login", user.toJson())
-                .thenAccept((response) -> {
-                    btnLogin.setDisable(false);
-                    btnRegister.setDisable(false);
+            reqHandler.request(RequestType.POST, "/register", user.toJson())
+            .thenAccept((response) -> {
+                JsonObject responseBody = null;
+                try {
+                    responseBody = reqHandler.getResponseBodyJson(response);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-                    JsonObject responseBody = new Gson().fromJson(response.body(), JsonObject.class);
+                assert responseBody != null;
 
-                    if (response.statusCode() == 200) {
-                        String accessToken = responseBody.get("accessToken").getAsString();
-                        String refreshToken = responseBody.get("refreshToken").getAsString();
+                if (response.getStatusLine().getStatusCode() == 200) {
+                    String accessToken = responseBody.get("accessToken").getAsString();
+                    String refreshToken = responseBody.get("refreshToken").getAsString();
 
-                        reqHandler.setAccessToken(accessToken);
-                        reqHandler.setRefreshToken(refreshToken);
+                    reqHandler.setAccessToken(accessToken);
+                    reqHandler.setRefreshToken(refreshToken);
 
-                        Hasher.storeCredentials("userInfo/userInfo.txt", emailField.getText(), passField.getText());
+                    Hasher.storeCredentials("userInfo/userInfo.txt",
+                            emailField.getText(),
+                            passField.getText());
 
-                        Platform.runLater(() -> {
-                            SceneHelper.showMainPage();
-                            MainController.getInstance().flash("Login successful!", false);
-                        });
-                    } else {
-                        String message = responseBody.get("error").getAsString();
-
-                        setError(message);
-                    }
-            }).exceptionally( e -> {
-
-                if(Hasher.getEmailPasswordHash("userInfo/userInfo.txt", emailField.getText(), passField.getText())){
                     Platform.runLater(() -> {
                         SceneHelper.showMainPage();
-                        MainController.getInstance().flash("Logged in using last known credentials.", false);
+                        MainController.getInstance().flash("Login successful!", false);
                     });
-                }
-                else {
-                    setError("Unable to connect to the server");
+                } else {
+                    String message = responseBody.get("error").getAsString();
 
-                    btnLogin.setDisable(false);
-                    btnRegister.setDisable(false);
+                    setError(message);
+                }
+            }).exceptionally(e -> {
+                if (e instanceof AssertionError) {
+                    setError("Error while parsing response JSON!");
+                } else {
+                    if(Hasher.getEmailPasswordHash("userInfo/userInfo.txt", emailField.getText(), passField.getText())){
+                        Platform.runLater(() -> {
+                            SceneHelper.showMainPage();
+                            MainController.getInstance().flash("Logged in using last known credentials.", false);
+                        });
+                    }
+                    else {
+                        setError("Unable to connect to the server");
+
+                        btnLogin.setDisable(false);
+                        btnRegister.setDisable(false);
+                    }
                 }
                 return null;
-            } );
+            }).whenComplete((m, t) -> {
+                btnLogin.setDisable(false);
+                btnRegister.setDisable(false);
+            });
         } else {
             setError("Fields cannot be empty!");
         }
