@@ -3,6 +3,7 @@ package arbyte.networking;
 import arbyte.helper.lambda.SupplierUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -11,18 +12,29 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.http.util.EntityUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 
 public class HttpRequestHandler {
 
+    //#region Singleton stuff
     private static HttpRequestHandler instance = null;
+
+    public static HttpRequestHandler getInstance() {
+        if (instance == null)
+            instance = new HttpRequestHandler();
+        return instance;
+    }
+    //#endregion
 
     private final Gson gson = new Gson();
     private final String baseUrl = "http://localhost:3000/api";
@@ -31,8 +43,6 @@ public class HttpRequestHandler {
     private String refreshToken = "";
 
     private final CloseableHttpClient client;
-
-    private boolean hasRefreshed = false;
 
     private HttpRequestHandler() {
         RequestConfig config = RequestConfig.custom()
@@ -45,12 +55,6 @@ public class HttpRequestHandler {
                     .setDefaultRequestConfig(config)
                     .setRedirectStrategy(new LaxRedirectStrategy())
                     .build();
-    }
-
-    public static HttpRequestHandler getInstance() {
-        if (instance == null)
-            instance = new HttpRequestHandler();
-        return instance;
     }
 
     public void setAccessToken(String accessToken) {
@@ -75,44 +79,67 @@ public class HttpRequestHandler {
     // payload is only necessary for a POST/PUT request, otherwise leave an empty string.
     public CompletableFuture<HttpResponse> requestWithAuth(RequestType requestType, String path, String payload) {
         return CompletableFuture.supplyAsync(SupplierUtils.wrap(() -> {
-            try (client) {
-                HttpRequestBase request = generateRequest(requestType, path, payload);
+            HttpRequestBase request = generateRequest(requestType, path, payload);
 
-                request.addHeader("Authorization", "Bearer " + accessToken);
+            return processAuthRequest(request);
+        }));
+    }
 
-                try (final CloseableHttpResponse response = client.execute(request)) {
-                    if (response.getStatusLine().getStatusCode() == 200) {
-                        hasRefreshed = false;
-                        return response;
-                    } else if (response.getStatusLine().getStatusCode() == 401 && !hasRefreshed) {
-                        HttpResponse refreshResponse = refreshTokens();
+    // Sends a multipart-form POST request to upload the given file to path
+    public CompletableFuture<HttpResponse> uploadFileAuth(String path, File file) {
+        return CompletableFuture.supplyAsync(SupplierUtils.wrap(() -> {
+            MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
 
-                        JsonObject resBodyJson = getResponseBodyJson(refreshResponse);
+            HttpEntity entity = entityBuilder
+                                    .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+                                    .addBinaryBody("toUpload", file, ContentType.DEFAULT_BINARY, file.getName())
+                                    .build();
 
-                        setAccessToken(resBodyJson.get("accessToken").getAsString());
-                        setRefreshToken(resBodyJson.get("refreshToken").getAsString());
+            HttpPost post = new HttpPost(baseUrl + path);
+            post.setEntity(entity);
 
-                        hasRefreshed = true;
-                        return requestWithAuth(requestType, path, payload).get();
-                    } else {
-                        return response;
-                    }
-                }
-            }
+            return processAuthRequest(post);
         }));
     }
 
     public JsonObject getResponseBodyJson(HttpResponse response) throws IOException {
-        String json = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-        System.out.println(json);
-        return gson.fromJson(json, JsonObject.class);
+        return gson.fromJson(getResponseBody(response), JsonObject.class);
+    }
+
+    public String getResponseBody(HttpResponse response) throws IOException {
+        return EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+    }
+
+    // Sends a request with auth. If unauthorized then retry after refreshing tokens.
+    private HttpResponse processAuthRequest(HttpRequestBase request) {
+        request.addHeader("Authorization", "Bearer " + accessToken);
+
+        try (final CloseableHttpResponse response = client.execute(request)) {
+            if (response.getStatusLine().getStatusCode() == 401) {
+                // If unauthorized then attempt to refresh tokens
+                refreshTokens();
+                return client.execute(request);
+            } else {
+                // Otherwise return the response (even if response is unsuccessful)
+                return response;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     // Sends a request to refresh the access and refresh tokens.
-    private HttpResponse refreshTokens() throws Exception {
+    private void refreshTokens() throws Exception {
         System.out.println("Refreshing tokens");
-        return request(RequestType.POST, "/refresh-token",
-                String.format("{ \"refreshToken\": \"%s\" }", refreshToken)).get();
+        HttpResponse response =  request(RequestType.POST, "/refresh-token",
+                                    String.format("{ \"refreshToken\": \"%s\" }", refreshToken))
+                                    .get();
+
+        JsonObject resBodyJson = getResponseBodyJson(response);
+
+        setAccessToken(resBodyJson.get("accessToken").getAsString());
+        setRefreshToken(resBodyJson.get("refreshToken").getAsString());
     }
 
     // Generates a request from the given request type along with the content (for POST requests only).

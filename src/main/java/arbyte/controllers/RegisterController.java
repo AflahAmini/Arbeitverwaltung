@@ -1,5 +1,6 @@
 package arbyte.controllers;
 
+import arbyte.helper.DataManager;
 import arbyte.networking.HttpRequestHandler;
 import arbyte.networking.RequestType;
 import arbyte.helper.Hasher;
@@ -19,21 +20,17 @@ import java.util.concurrent.*;
 
 
 public class RegisterController {
+
     @FXML
     Text error;
-
     @FXML
     TextField emailField;
-
     @FXML
     PasswordField passField;
-
     @FXML
     PasswordField conpassField;
-
     @FXML
     Button btnRegister;
-
     @FXML
     Button btnCancel;
 
@@ -66,6 +63,8 @@ public class RegisterController {
                     String accessToken = responseBody.get("accessToken").getAsString();
                     String refreshToken = responseBody.get("refreshToken").getAsString();
 
+                    int id = responseBody.get("id").getAsInt();
+
                     reqHandler.setAccessToken(accessToken);
                     reqHandler.setRefreshToken(refreshToken);
 
@@ -74,6 +73,10 @@ public class RegisterController {
                             passField.getText());
 
                     Platform.runLater(() -> {
+                        user.clearPasswords();
+                        user.id = id;
+                        DataManager.getInstance().initialize(user, true);
+
                         SceneHelper.showMainPage();
                         MainController.getInstance().flash("Register successful!", false);
                     });

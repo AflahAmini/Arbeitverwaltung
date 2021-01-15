@@ -3,3 +3,4 @@
 *.iml
 /src/test/java/GeneralTest.java
 /src/main/resources/userInfo/
+/src/main/resources/json/

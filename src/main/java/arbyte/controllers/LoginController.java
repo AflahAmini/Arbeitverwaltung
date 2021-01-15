@@ -1,5 +1,6 @@
 package arbyte.controllers;
 
+import arbyte.helper.DataManager;
 import arbyte.networking.HttpRequestHandler;
 import arbyte.networking.RequestType;
 import arbyte.helper.SceneHelper;
@@ -21,16 +22,12 @@ public class LoginController {
 
     @FXML
     Text error;
-
     @FXML
     TextField emailField;
-
     @FXML
     PasswordField passField;
-
     @FXML
     Button btnLogin;
-
     @FXML
     Button btnRegister;
 
@@ -51,7 +48,7 @@ public class LoginController {
 
             HttpRequestHandler reqHandler = HttpRequestHandler.getInstance();
 
-            reqHandler.request(RequestType.POST, "/register", user.toJson())
+            reqHandler.request(RequestType.POST, "/login", user.toJson())
             .thenAccept((response) -> {
                 JsonObject responseBody = null;
                 try {
@@ -66,6 +63,8 @@ public class LoginController {
                     String accessToken = responseBody.get("accessToken").getAsString();
                     String refreshToken = responseBody.get("refreshToken").getAsString();
 
+                    int id = responseBody.get("id").getAsInt();
+
                     reqHandler.setAccessToken(accessToken);
                     reqHandler.setRefreshToken(refreshToken);
 
@@ -74,6 +73,10 @@ public class LoginController {
                             passField.getText());
 
                     Platform.runLater(() -> {
+                        user.clearPasswords();
+                        user.id = id;
+                        DataManager.getInstance().initialize(user, true);
+
                         SceneHelper.showMainPage();
                         MainController.getInstance().flash("Login successful!", false);
                     });
@@ -88,6 +91,9 @@ public class LoginController {
                 } else {
                     if(Hasher.getEmailPasswordHash("userInfo/userInfo.txt", emailField.getText(), passField.getText())){
                         Platform.runLater(() -> {
+                            user.clearPasswords();
+                            DataManager.getInstance().initialize(user, false);
+
                             SceneHelper.showMainPage();
                             MainController.getInstance().flash("Logged in using last known credentials.", false);
                         });
@@ -101,6 +107,7 @@ public class LoginController {
                 }
                 return null;
             }).whenComplete((m, t) -> {
+                // Re-enable the buttons after request is finished
                 btnLogin.setDisable(false);
                 btnRegister.setDisable(false);
             });

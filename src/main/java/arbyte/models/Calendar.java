@@ -78,7 +78,9 @@ public class Calendar {
     }
 
     public String toJson(){
-        Gson gson = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeConverter())
+        Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeConverter())
                 .create();
         return gson.toJson(this);
     }

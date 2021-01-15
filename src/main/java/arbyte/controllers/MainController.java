@@ -19,7 +19,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class MainController {
-
     private static MainController mainController;
 
     public static MainController getInstance() {
