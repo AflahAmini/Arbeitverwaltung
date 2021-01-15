@@ -38,6 +38,9 @@ public class MainController {
     private Session curSession;
 
     @FXML
+    Label labelEmail;
+
+    @FXML
     public void initialize() {
         mainController = this;
         curSession = new Session();
@@ -45,6 +48,8 @@ public class MainController {
 
         startSessionUpdateSchedule();
         setStatus(true);
+
+        labelEmail.setText(LoginController.getInstance().getEmail());
 
         // Registers SessionMouseListener to manage session pauses upon inactivity
         try {

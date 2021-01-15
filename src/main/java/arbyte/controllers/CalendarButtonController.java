@@ -7,12 +7,11 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 
 public class CalendarButtonController {
-
+    private static CalendarButtonController calendarButtonController;
     @FXML
     Text dateNumber;
     @FXML
     HBox eventCount;
-
     void initInfo(int date, int numOfEvents) {
         dateNumber.setText(String.valueOf(date));
 
@@ -40,6 +39,16 @@ public class CalendarButtonController {
     }
 
     public void addButton() {
+        CalendarViewController.getInstance().setDate(Integer.parseInt(getDateNumber()));
         MainController.getInstance().changeView("fxml/EventView.fxml");
     }
+  
+    public static CalendarButtonController getInstance(){
+        return calendarButtonController;
+    }
+  
+    public String getDateNumber(){
+        return this.dateNumber.getText();
+    }
+
 }

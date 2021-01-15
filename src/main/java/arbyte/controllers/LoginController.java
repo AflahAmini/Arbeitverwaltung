@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.concurrent.*;
 
 public class LoginController {
+    private static LoginController loginController;
 
     //#region FXML variables
     @FXML
@@ -40,6 +41,7 @@ public class LoginController {
     // Attempts a user login using the inputted credentials. If server is unreachable
     // then it attempts an offline login using last known credentials
     public void buttonLogin(){
+        loginController = this;
         User user = new User(emailField.getText(), passField.getText(), passField.getText());
 
         if (user.isValid()) {
@@ -122,6 +124,14 @@ public class LoginController {
 
     public void switchToRegister(){
         SceneHelper.showRegisterPage();
+    }
+
+    public static LoginController getInstance(){
+        return loginController;
+    }
+
+    public String getEmail(){
+        return emailField.getText();
     }
 
     private void setError(String msg){

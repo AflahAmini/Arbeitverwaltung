@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="arbyte.controllers.MainController">
+<StackPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="arbyte.controllers.MainController">
 <HBox alignment="TOP_RIGHT" prefHeight="400.0" prefWidth="600.0" stylesheets="@../stylesheets/style.css">
    <children>
       <AnchorPane fx:id="mainView" maxHeight="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
@@ -24,7 +24,7 @@
                         <Image url="@../images/image_error.png" />
                      </image>
                   </ImageView>
-                  <Label text="User@mail.de" textFill="WHITE">
+                  <Label fx:id="labelEmail" text="User@mail.de" textFill="WHITE">
                      <VBox.margin>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
                      </VBox.margin>

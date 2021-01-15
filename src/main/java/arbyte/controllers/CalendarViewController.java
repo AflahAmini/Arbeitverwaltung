@@ -28,7 +28,9 @@ public class CalendarViewController {
 
     private int year = LocalDateTime.now().getYear();
     private int month = LocalDateTime.now().getMonthValue();
+    private int date ;
 
+    private static CalendarViewController calendarViewController;
     private Calendar calendar;
 
     public CalendarViewController() {
@@ -38,7 +40,10 @@ public class CalendarViewController {
     }
 
     @FXML
-    public void initialize(){ updateCalendarView(); }
+    public void initialize(){
+        updateCalendarView();
+        calendarViewController = this;
+    }
 
     public void previousButton(){
         month--;
@@ -103,5 +108,20 @@ public class CalendarViewController {
                 y++;
             }
         }
+    }
+
+    public static CalendarViewController getInstance(){
+        return calendarViewController;
+    }
+
+    public String yearMonth(){
+        return String.format("%d-%02d", year, month);
+    }
+
+    public void setDate(int i){
+        date = i;
+    }
+    public int getDate(){
+        return date;
     }
 }
