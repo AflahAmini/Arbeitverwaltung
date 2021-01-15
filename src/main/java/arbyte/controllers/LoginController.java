@@ -6,7 +6,6 @@ import arbyte.networking.RequestType;
 import arbyte.helper.SceneHelper;
 import arbyte.helper.Hasher;
 import arbyte.models.User;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -20,6 +19,7 @@ import java.util.concurrent.*;
 
 public class LoginController {
 
+    //#region FXML variables
     @FXML
     Text error;
     @FXML
@@ -30,24 +30,26 @@ public class LoginController {
     Button btnLogin;
     @FXML
     Button btnRegister;
+    //#endregion
 
     @FXML
     public void initialize(){
         error.setText("");
     }
 
-    // Sends a POST request to /login and waits until a response is given.
-    // While waiting the login and register buttons should be disabled.
+    // Attempts a user login using the inputted credentials. If server is unreachable
+    // then it attempts an offline login using last known credentials
     public void buttonLogin(){
         User user = new User(emailField.getText(), passField.getText(), passField.getText());
 
         if (user.isValid()) {
-            // Disable the buttons upon clicking
+            // Disable the buttons while waiting for response
             btnLogin.setDisable(true);
             btnRegister.setDisable(true);
 
             HttpRequestHandler reqHandler = HttpRequestHandler.getInstance();
 
+            // Send a POST request to /login with the user json
             reqHandler.request(RequestType.POST, "/login", user.toJson())
             .thenAccept((response) -> {
                 JsonObject responseBody = null;
@@ -57,26 +59,27 @@ public class LoginController {
                     e.printStackTrace();
                 }
 
+                // Assertion error if json cannot be parsed
                 assert responseBody != null;
 
                 if (response.getStatusLine().getStatusCode() == 200) {
                     String accessToken = responseBody.get("accessToken").getAsString();
                     String refreshToken = responseBody.get("refreshToken").getAsString();
-
                     int id = responseBody.get("id").getAsInt();
 
+                    // Set access and refresh tokens for auth requests
                     reqHandler.setAccessToken(accessToken);
                     reqHandler.setRefreshToken(refreshToken);
 
-                    Hasher.storeCredentials("userInfo/userInfo.txt",
-                            emailField.getText(),
-                            passField.getText());
+                    // Store the credentials as a hash
+                    Hasher.storeCredentials(emailField.getText(), passField.getText());
 
                     Platform.runLater(() -> {
                         user.clearPasswords();
                         user.id = id;
                         DataManager.getInstance().initialize(user, true);
 
+                        // Switch to main view with a flash message
                         SceneHelper.showMainPage();
                         MainController.getInstance().flash("Login successful!", false);
                     });
@@ -88,22 +91,23 @@ public class LoginController {
             }).exceptionally(e -> {
                 if (e instanceof AssertionError) {
                     setError("Error while parsing response JSON!");
-                } else {
-                    if(Hasher.getEmailPasswordHash("userInfo/userInfo.txt", emailField.getText(), passField.getText())){
-                        Platform.runLater(() -> {
-                            user.clearPasswords();
-                            DataManager.getInstance().initialize(user, false);
+                }
+                // If credentials match last known credentials, then log into app in offline mode
+                else if(Hasher.compareLastCredentials(emailField.getText(), passField.getText())){
+                    Platform.runLater(() -> {
+                        user.clearPasswords();
+                        DataManager.getInstance().initialize(user, false);
 
-                            SceneHelper.showMainPage();
-                            MainController.getInstance().flash("Logged in using last known credentials.", false);
-                        });
-                    }
-                    else {
-                        setError("Unable to connect to the server");
+                        SceneHelper.showMainPage();
+                        MainController.getInstance().flash("Logged in using last known credentials.", false);
+                    });
+                }
+                // Otherwise show the usual connection failed error
+                else {
+                    setError("Unable to connect to the server");
 
-                        btnLogin.setDisable(false);
-                        btnRegister.setDisable(false);
-                    }
+                    btnLogin.setDisable(false);
+                    btnRegister.setDisable(false);
                 }
                 return null;
             }).whenComplete((m, t) -> {

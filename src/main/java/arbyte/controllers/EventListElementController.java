@@ -7,10 +7,8 @@ public class EventListElementController {
 
     @FXML
     Label labelFrom;
-
     @FXML
     Label labelTo;
-
     @FXML
     Label labelEventName;
 
@@ -19,6 +17,4 @@ public class EventListElementController {
         labelTo.setText(to);
         labelEventName.setText(eventName);
     }
-
-
 }

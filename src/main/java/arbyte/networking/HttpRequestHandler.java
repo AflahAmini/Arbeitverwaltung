@@ -44,6 +44,7 @@ public class HttpRequestHandler {
 
     private final CloseableHttpClient client;
 
+    // Client configuration
     private HttpRequestHandler() {
         RequestConfig config = RequestConfig.custom()
                 .setConnectionRequestTimeout(1000)
@@ -57,13 +58,8 @@ public class HttpRequestHandler {
                     .build();
     }
 
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
-
-    public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
+    public void setAccessToken(String accessToken) { this.accessToken = accessToken; }
+    public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
 
     // Sends a request to the server without authentication.
     // payload is only necessary for a POST/PUT request, otherwise leave an empty string.
@@ -110,7 +106,7 @@ public class HttpRequestHandler {
         return EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
     }
 
-    // Sends a request with auth. If unauthorized then retry after refreshing tokens.
+    // Sends the given request with auth. If unauthorized then retry after refreshing tokens.
     private HttpResponse processAuthRequest(HttpRequestBase request) {
         request.addHeader("Authorization", "Bearer " + accessToken);
 

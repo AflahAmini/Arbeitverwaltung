@@ -55,6 +55,9 @@ public class Calendar {
         m.addEventAt(calEvent, i);
     }
 
+    // Replaces oldEvent with newEvent.
+    // If unsuccessful then the oldEvent would not be deleted,
+    // and an exception would be thrown
     public void updateEvent(CalEvent oldEvent, CalEvent newEvent) throws Exception {
         deleteEvent(oldEvent);
         // If add event fails then the old event should be re-added
@@ -77,6 +80,7 @@ public class Calendar {
         }
     }
 
+    // Json (de-)serialization methods
     public String toJson(){
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting()
@@ -93,9 +97,8 @@ public class Calendar {
 
     // Runs a binary search in eventList for calEvent and returns the index where calEvent should be inserted at
     private int binSearchRecur(CalEvent calEvent, List<CalEvent> eventList, int s, int e){
-        if(eventList.size() == 0){
+        if(eventList.size() == 0)
             return 0;
-        }
 
         if(s == e){
             if(calEvent.getStartTime().compareTo(eventList.get(s).getStartTime())>0){
@@ -103,13 +106,12 @@ public class Calendar {
             }
             return s;
         }
+
         int mid = (s+e)/2;
-        if(calEvent.getStartTime().compareTo(eventList.get(mid).getStartTime())>0){
+        if(calEvent.getStartTime().compareTo(eventList.get(mid).getStartTime())>0)
             return binSearchRecur(calEvent,eventList, mid+1, e);
-        }
-        else{
+        else
             return binSearchRecur(calEvent,eventList, s, mid);
-        }
     }
 
     private boolean overlapsOtherEvents(CalEvent calEvent){

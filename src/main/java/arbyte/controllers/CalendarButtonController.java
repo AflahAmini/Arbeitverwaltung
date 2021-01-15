@@ -1,22 +1,15 @@
 package arbyte.controllers;
 
-import arbyte.helper.SceneHelper;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 
-import java.io.IOException;
-
 public class CalendarButtonController {
 
     @FXML
     Text dateNumber;
-
     @FXML
     HBox eventCount;
 
@@ -27,6 +20,7 @@ public class CalendarButtonController {
         final double eventCircleRadius = 3;
         final Color eventCircleFill = Color.web("#ed8021");
 
+        // Add circles by numOfEvents times but not exceeding maxEventCount
         for (int i = 0; i < Math.min(maxEventCount, numOfEvents); i++) {
             Circle eventCircle = new Circle();
             eventCircle.setRadius(eventCircleRadius);
@@ -35,17 +29,17 @@ public class CalendarButtonController {
             eventCount.getChildren().add(eventCircle);
         }
 
+        // Add a smaller circle at the end if numOfEvents exceeds maxEventCount
         if (numOfEvents > maxEventCount) {
             Circle smallerCircle = new Circle();
-            smallerCircle.setRadius(eventCircleRadius / 2);
+            smallerCircle.setRadius(eventCircleRadius / 2.5);
             smallerCircle.setFill(eventCircleFill);
 
             eventCount.getChildren().add(smallerCircle);
         }
     }
 
-    public void addButton(ActionEvent Event) throws IOException {
+    public void addButton() {
         MainController.getInstance().changeView("fxml/EventView.fxml");
     }
-
 }

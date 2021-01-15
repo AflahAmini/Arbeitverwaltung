@@ -13,14 +13,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
-import org.junit.jupiter.api.Assertions;
 
 import java.io.IOException;
 import java.util.concurrent.*;
 
-
 public class RegisterController {
 
+    //#region FXML variables
     @FXML
     Text error;
     @FXML
@@ -33,21 +32,25 @@ public class RegisterController {
     Button btnRegister;
     @FXML
     Button btnCancel;
+    //#endregion
 
     @FXML
     public void initialize(){
         error.setText("");
     }
 
+    // Attempts a user registration using the inputted credentials.
     public void registerButton(){
         User user = new User(emailField.getText(), passField.getText(), conpassField.getText());
 
         if (user.isValid()) {
+            // Disable the buttons while waiting for response
             btnCancel.setDisable(true);
             btnRegister.setDisable(true);
 
             HttpRequestHandler reqHandler = HttpRequestHandler.getInstance();
 
+            // Sends a POST request to /register with the user json
             reqHandler.request(RequestType.POST, "/register", user.toJson())
             .thenAccept((response) -> {
                 JsonObject responseBody = null;
@@ -57,6 +60,7 @@ public class RegisterController {
                     e.printStackTrace();
                 }
 
+                // Assertion error if json cannot be parsed
                 assert responseBody != null;
 
                 if (response.getStatusLine().getStatusCode() == 200) {
@@ -65,18 +69,19 @@ public class RegisterController {
 
                     int id = responseBody.get("id").getAsInt();
 
+                    // Set access and refresh tokens for auth requests
                     reqHandler.setAccessToken(accessToken);
                     reqHandler.setRefreshToken(refreshToken);
 
-                    Hasher.storeCredentials("userInfo/userInfo.txt",
-                            emailField.getText(),
-                            passField.getText());
+                    // Store the credentials as a hash
+                    Hasher.storeCredentials(emailField.getText(), passField.getText());
 
                     Platform.runLater(() -> {
                         user.clearPasswords();
                         user.id = id;
                         DataManager.getInstance().initialize(user, true);
 
+                        // Switch to main view with a flash message
                         SceneHelper.showMainPage();
                         MainController.getInstance().flash("Register successful!", false);
                     });
@@ -88,12 +93,15 @@ public class RegisterController {
             }).exceptionally(e -> {
                 if (e instanceof AssertionError) {
                     setError("Error while parsing response JSON!");
-                } else {
+                }
+                // Show the usual connection failed error
+                else {
                     setError("Unable to connect to the server");
                     e.printStackTrace();
                 }
                 return null;
             }).whenComplete((m, t) -> {
+                // Re-enable the buttons after request is finished
                 btnCancel.setDisable(false);
                 btnRegister.setDisable(false);
             });

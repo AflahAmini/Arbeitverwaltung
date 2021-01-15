@@ -1,16 +1,7 @@
 package arbyte.models;
 
-import arbyte.helper.Hasher;
-import arbyte.helper.ResourceLoader;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class User {
     public int id;

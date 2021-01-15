@@ -4,16 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Month {
-    private String monthYear;
-    private List<CalEvent> events;
+    private final String monthYear;
+    private final List<CalEvent> events;
 
-    public String getMonthYear() {
-        return monthYear;
-    }
-
-    public List<CalEvent> getEvents() {
-        return events;
-    }
+    public String getMonthYear() { return monthYear; }
+    public List<CalEvent> getEvents() { return events; }
 
     public Month (String monthYear){
         this.monthYear = monthYear;
@@ -28,7 +23,5 @@ public class Month {
         }
     }
 
-    public void removeEvent(CalEvent c){
-        events.remove(c);
-    }
+    public void removeEvent(CalEvent c){ events.remove(c); }
 }

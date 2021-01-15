@@ -14,13 +14,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
-public class GlobalMouseListener implements NativeMouseMotionListener {
+public class SessionMouseListener implements NativeMouseMotionListener {
     private ScheduledFuture<?> timerHandle;
     private final Session session = MainController.getInstance().getCurSession();
     private final long countdownTime = 5;
 
-    public GlobalMouseListener(){
+    public SessionMouseListener(){
+        // Disables the default logger
         Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
         logger.setLevel(Level.OFF);
 
@@ -29,25 +29,23 @@ public class GlobalMouseListener implements NativeMouseMotionListener {
 
     @Override
     public void nativeMouseMoved(NativeMouseEvent nativeMouseEvent) {
-        if(timerHandle != null) {
+        // Interrupt the timer handle once the mouse starts moving
+        if(timerHandle != null)
             timerHandle.cancel(false);
-        }
+
         if(session.isPaused()){
             session.toggleSessionPause();
             Platform.runLater(() -> MainController.getInstance().setStatus(true));
-        }
-        else{
-            timer();
-        }
+        } else
+            startTimer();
     }
 
     @Override
-    public void nativeMouseDragged(NativeMouseEvent nativeMouseEvent) {
+    public void nativeMouseDragged(NativeMouseEvent nativeMouseEvent) { }
 
-    }
-
-    private void timer(){
-
+    // Starts a timer that expires after countdownTime seconds.
+    // Upon expiring the timer pauses the session.
+    private void startTimer(){
         final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
         timerHandle = scheduler.schedule(() -> {
@@ -56,7 +54,5 @@ public class GlobalMouseListener implements NativeMouseMotionListener {
             Platform.runLater(() -> MainController.getInstance().setStatus(false));
 
         },  countdownTime, TimeUnit.SECONDS);
-
     }
-
 }

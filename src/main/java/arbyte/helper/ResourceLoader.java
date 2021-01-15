@@ -7,10 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class ResourceLoader {
-    public File getFile(String filename) {
-        return Paths.get(getPathFromRelative(filename)).toFile();
-    }
-
+    // Returns the file if it does not exist,
+    // otherwise create the file then return it
     public File getFileOrCreate(String filename) throws IOException {
         File f = getFile(filename);
         File parentDir = f.getParentFile();
@@ -21,6 +19,10 @@ public class ResourceLoader {
         }
 
         return f;
+    }
+
+    public File getFile(String filename) {
+        return Paths.get(getPathFromRelative(filename)).toFile();
     }
 
     public URL getURL(String filename) throws Exception {

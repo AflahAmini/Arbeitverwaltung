@@ -10,23 +10,21 @@ import javafx.scene.layout.HBox;
 
 
 public class EventViewController {
+
+    //#region FXML variables
     @FXML
     JFXListView<HBox> listView;
-
     @FXML
     JFXButton addEventButton;
-
     @FXML
     JFXButton editButton;
-
     @FXML
     JFXButton backButton;
-
     @FXML
     Label labelDate;
-
     @FXML
     Label labelMonth;
+    //#endregion
 
     @FXML
     public void initialize(){
@@ -41,6 +39,5 @@ public class EventViewController {
         catch(Exception e){
             e.printStackTrace();
         }
-
     }
 }

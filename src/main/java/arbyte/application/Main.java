@@ -13,8 +13,8 @@ public class Main extends Application {
         SceneHelper.initialise(primaryStage);
         SceneHelper.showLogInPage();
 
+        // Makes sure the program exits properly
         Platform.setImplicitExit(true);
-
         primaryStage.setOnCloseRequest(windowEvent -> {
             Platform.exit();
             System.exit(0);

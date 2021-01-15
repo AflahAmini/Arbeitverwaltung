@@ -3,6 +3,7 @@ package arbyte.helper.lambda;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
+// Class to define a wrapper for Supplier that allows exception to be thrown
 // https://stackoverflow.com/questions/14039995/java-8-mandatory-checked-exceptions-handling-in-lambda-expressions-why-mandato/14045585#14045585
 public final class SupplierUtils {
     private SupplierUtils() {}
