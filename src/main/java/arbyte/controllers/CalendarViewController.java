@@ -16,9 +16,10 @@ import java.time.YearMonth;
 public class CalendarViewController {
     private int year = LocalDateTime.now().getYear();
     private int month = LocalDateTime.now().getMonthValue();
-
+    private int date ;
     private Calendar calendar;
 
+    private static CalendarViewController calendarViewController;
     @FXML //CalendarView
     JFXButton btnPrevious;
     @FXML
@@ -39,6 +40,7 @@ public class CalendarViewController {
     public void initialize(){
         labelMonthYear.setText(month + "/" + year);
         addButtonToCalendarView();
+        calendarViewController = this;
     }
 
     public void previousButton(ActionEvent Event){
@@ -95,5 +97,20 @@ public class CalendarViewController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static CalendarViewController getInstance(){
+        return calendarViewController;
+    }
+
+    public String yearMonth(){
+        return String.format("%d-%02d", year, month);
+    }
+
+    public void setDate(int i){
+        date = i;
+    }
+    public int getDate(){
+        return date;
     }
 }

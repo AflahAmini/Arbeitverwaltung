@@ -17,6 +17,7 @@ import javafx.scene.text.Text;
 import java.util.concurrent.*;
 
 public class LoginController {
+    private static LoginController loginController;
 
     @FXML
     Text error;
@@ -41,6 +42,7 @@ public class LoginController {
     // Sends a POST request to /login and waits until a response is given.
     // While waiting the login and register buttons should be disabled.
     public void buttonLogin(){
+        loginController = this;
         User user = new User(emailField.getText(), passField.getText(), passField.getText());
 
         if (user.isValid()) {
@@ -98,6 +100,14 @@ public class LoginController {
 
     public void switchToRegister(){
         SceneHelper.showRegisterPage();
+    }
+
+    public static LoginController getInstance(){
+        return loginController;
+    }
+
+    public String getEmail(){
+        return emailField.getText();
     }
 
     private void setError(String msg){

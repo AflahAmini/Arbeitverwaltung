@@ -41,7 +41,7 @@
             <JFXListView fx:id="listView" maxHeight="-Infinity" prefHeight="500.0" />
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <JFXButton fx:id="addEventButton" buttonType="RAISED" style="-fx-background-color: #1D3557;" text="Add Event" textFill="WHITE">
+                  <JFXButton fx:id="addEventButton" buttonType="RAISED" onAction="#addEventButton" style="-fx-background-color: #1D3557;" text="Add Event" textFill="WHITE">
                      <font>
                         <Font size="14.0" />
                      </font>
@@ -57,7 +57,7 @@
                         <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
                      </HBox.margin>
                   </JFXButton>
-                  <JFXButton fx:id="backButton" text="Back" textFill="#1d3557">
+                  <JFXButton fx:id="backButton" onAction="#backButton" text="Back" textFill="#1d3557">
                      <font>
                         <Font size="14.0" />
                      </font>

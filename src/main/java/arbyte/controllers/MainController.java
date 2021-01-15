@@ -38,11 +38,15 @@ public class MainController {
     Label labelStatus;
 
     @FXML
+    Label labelEmail;
+
+    @FXML
     public void initialize() {
         mainController = this;
         curSession = new Session();
         changeView("fxml/CalendarView.fxml");
 
+        labelEmail.setText(LoginController.getInstance().getEmail());
         labelSession.setText("Duration - 00:00");
 
         ScheduledExecutorService sessionService = Executors.newSingleThreadScheduledExecutor();

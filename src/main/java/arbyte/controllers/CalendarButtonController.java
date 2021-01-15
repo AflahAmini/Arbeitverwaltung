@@ -1,25 +1,19 @@
 package arbyte.controllers;
 
-import arbyte.helper.SceneHelper;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 
-import java.io.IOException;
-
 public class CalendarButtonController {
-
+    private static CalendarButtonController calendarButtonController;
     @FXML
     Text dateNumber;
 
     @FXML
     HBox eventCount;
-
     void initInfo(int date, int numOfEvents) {
         dateNumber.setText(String.valueOf(date));
 
@@ -44,8 +38,15 @@ public class CalendarButtonController {
         }
     }
 
-    public void addButton(ActionEvent Event) throws IOException {
+    public void addButton(ActionEvent Event) {
+        CalendarViewController.getInstance().setDate(Integer.parseInt(getDateNumber()));
         MainController.getInstance().changeView("fxml/EventView.fxml");
     }
+    public static CalendarButtonController getInstance(){
+        return calendarButtonController;
+    }
 
+    public String getDateNumber(){
+        return this.dateNumber.getText();
+    }
 }

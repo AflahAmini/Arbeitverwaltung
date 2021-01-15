@@ -13,8 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="arbyte.controllers.AddEventController">
    <children>
       <VBox alignment="CENTER" layoutX="10.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: white;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -34,9 +33,9 @@
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                </rowConstraints>
                <children>
-                  <JFXTextField maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="31.0" prefWidth="211.0" GridPane.columnIndex="1" />
-                  <JFXTimePicker defaultColor="#1d3557" maxWidth="1.7976931348623157E308" prefHeight="31.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <JFXTimePicker defaultColor="#1d3557" maxWidth="1.7976931348623157E308" prefHeight="31.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <JFXTextField fx:id="eventName" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="31.0" prefWidth="211.0" GridPane.columnIndex="1" />
+                  <JFXTimePicker fx:id="eventStartTime" defaultColor="#1d3557" maxWidth="1.7976931348623157E308" prefHeight="31.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <JFXTimePicker fx:id="eventEndTime" defaultColor="#1d3557" maxWidth="1.7976931348623157E308" prefHeight="31.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                   <Label text="Name" />
                   <Label text="Start Time" GridPane.rowIndex="1" />
                   <Label text="End Time" GridPane.rowIndex="2" />
@@ -47,12 +46,12 @@
             </GridPane>
             <HBox alignment="CENTER" prefHeight="66.0" prefWidth="600.0" spacing="10.0">
                <children>
-                  <JFXButton buttonType="RAISED" style="-fx-background-color: #1D3557; -fx-background-radius: 5;" text="Add" textFill="WHITE">
+                  <JFXButton fx:id="addEventButton" buttonType="RAISED" onAction="#addEventButton" style="-fx-background-color: #1D3557; -fx-background-radius: 5;" text="Add" textFill="WHITE">
                      <font>
                         <Font size="17.0" />
                      </font>
                   </JFXButton>
-                  <JFXButton text="Cancel">
+                  <JFXButton fx:id="cancelButton" onAction="#cancelButton" text="Cancel">
                      <font>
                         <Font size="17.0" />
                      </font>
