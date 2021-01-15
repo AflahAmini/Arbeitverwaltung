@@ -3,24 +3,20 @@ package arbyte.controllers;
 import arbyte.helper.SceneHelper;
 import arbyte.models.Calendar;
 import com.jfoenix.controls.JFXButton;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 
 public class CalendarViewController {
-    private int year = LocalDateTime.now().getYear();
-    private int month = LocalDateTime.now().getMonthValue();
-    private int date ;
-    private Calendar calendar;
 
-    private static CalendarViewController calendarViewController;
-    @FXML //CalendarView
+    //#region FXML variables
+    @FXML
     JFXButton btnPrevious;
     @FXML
     JFXButton btnNext;
@@ -28,74 +24,89 @@ public class CalendarViewController {
     Label labelMonthYear;
     @FXML
     GridPane gridCalendar;
+    //#endregion
+
+    private int year = LocalDateTime.now().getYear();
+    private int month = LocalDateTime.now().getMonthValue();
+    private int date ;
+
+    private static CalendarViewController calendarViewController;
+    private Calendar calendar;
 
     public CalendarViewController() {
         if (calendar == null) {
-            // This needs to read from a json later
             calendar = new Calendar();
         }
     }
 
     @FXML
     public void initialize(){
-        labelMonthYear.setText(month + "/" + year);
-        addButtonToCalendarView();
+        updateCalendarView();
         calendarViewController = this;
     }
 
-    public void previousButton(ActionEvent Event){
+    public void previousButton(){
         month--;
         if (month < 1) {
             month = 12;
             year--;
         }
-        labelMonthYear.setText(month + "/" + year);
-        addButtonToCalendarView();
+        updateCalendarView();
     }
 
-    public void nextButton(ActionEvent Event){
+    public void nextButton(){
         month++;
         if (month > 12) {
             month = 1;
             year++;
         }
-        labelMonthYear.setText(month + "/" + year);
-        addButtonToCalendarView();
+        updateCalendarView();
     }
 
-    private void addButtonToCalendarView() {
+    private void updateCalendarView() {
+        labelMonthYear.setText(month + "/" + year);
+        generateCalendarButtons();
+    }
+
+    private void generateCalendarButtons() {
         gridCalendar.getChildren().clear();
 
         YearMonth yearMonthObject = YearMonth.of(year, month); //to get number of days in a month
         LocalDate firstOfMonth = yearMonthObject.atDay( 1 );
 
-        int counter = 0;
-        int day = firstOfMonth.getDayOfWeek().getValue();
-        int incrementX = day == 7 ? 0 : day;
-        int incrementY = 0;
+        int dayCount = 0;
+        int firstDay = firstOfMonth.getDayOfWeek().getValue();
 
-        try {
-            while(counter < yearMonthObject.getMonth().maxLength()){
-                FXMLLoader btnLoader = SceneHelper.getFXMLLoader("fxml/CalendarButton.fxml");
+        // Transforms firstDay from 1-7 (starting Monday) into 0-6 (starting Sunday)
+        int x = firstDay == 7 ? 0 : firstDay;
+        int y = 0;
 
-                if(incrementX < gridCalendar.getColumnConstraints().size()){
-                    gridCalendar.add(btnLoader.load(), incrementX, incrementY);
+        // Iterate until the last day of the month
+        while(dayCount < yearMonthObject.getMonth().maxLength()){
+            FXMLLoader btnLoader = SceneHelper.getFXMLLoader("fxml/CalendarButton.fxml");
 
-                    CalendarButtonController btnController = btnLoader.getController();
-                    String monthYear = String.format("%02d-%d", month, year);
-
-                    btnController.initInfo(counter + 1, calendar.getEventsOfMonth(monthYear).size());
-
-                    incrementX++;
-                    counter++;
+            if(x < gridCalendar.getColumnConstraints().size()){
+                try {
+                    gridCalendar.add(btnLoader.load(), x, y);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                else{
-                    incrementX = 0;
-                    incrementY++;
-                }
+
+                // Sets the values in the calendar button
+                CalendarButtonController btnController = btnLoader.getController();
+                String monthYear = String.format("%02d-%d", month, year);
+
+                btnController.initInfo(dayCount + 1, calendar.getEventsOfMonth(monthYear).size());
+
+                // Jump to next column, same row
+                x++;
+                dayCount++;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            else{
+                // Jump to next row, first column
+                x = 0;
+                y++;
+            }
         }
     }
 

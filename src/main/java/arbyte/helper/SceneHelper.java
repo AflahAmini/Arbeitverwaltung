@@ -1,7 +1,5 @@
 package arbyte.helper;
 
-import arbyte.controllers.MainController;
-import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -19,15 +17,15 @@ public class SceneHelper {
         currentStage.setResizable(false);
     }
 
-    public static void showLogInPage(){
+    public static void showLogInPage() {
         SceneHelper.switchSceneResource("fxml/LoginPage.fxml", 600, 400);
     }
 
-    public static void showRegisterPage(){
+    public static void showRegisterPage() {
         SceneHelper.switchSceneResource("fxml/RegisterPage.fxml",600, 400);
     }
 
-    public static void showMainPage(){
+    public static void showMainPage() {
         SceneHelper.switchSceneResource("fxml/MainScene.fxml", 900, 600);
     }
 

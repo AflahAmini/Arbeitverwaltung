@@ -1,6 +1,5 @@
 package arbyte.controllers;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -11,7 +10,6 @@ public class CalendarButtonController {
     private static CalendarButtonController calendarButtonController;
     @FXML
     Text dateNumber;
-
     @FXML
     HBox eventCount;
     void initInfo(int date, int numOfEvents) {
@@ -21,6 +19,7 @@ public class CalendarButtonController {
         final double eventCircleRadius = 3;
         final Color eventCircleFill = Color.web("#ed8021");
 
+        // Add circles by numOfEvents times but not exceeding maxEventCount
         for (int i = 0; i < Math.min(maxEventCount, numOfEvents); i++) {
             Circle eventCircle = new Circle();
             eventCircle.setRadius(eventCircleRadius);
@@ -29,24 +28,27 @@ public class CalendarButtonController {
             eventCount.getChildren().add(eventCircle);
         }
 
+        // Add a smaller circle at the end if numOfEvents exceeds maxEventCount
         if (numOfEvents > maxEventCount) {
             Circle smallerCircle = new Circle();
-            smallerCircle.setRadius(eventCircleRadius / 2);
+            smallerCircle.setRadius(eventCircleRadius / 2.5);
             smallerCircle.setFill(eventCircleFill);
 
             eventCount.getChildren().add(smallerCircle);
         }
     }
 
-    public void addButton(ActionEvent Event) {
+    public void addButton() {
         CalendarViewController.getInstance().setDate(Integer.parseInt(getDateNumber()));
         MainController.getInstance().changeView("fxml/EventView.fxml");
     }
+  
     public static CalendarButtonController getInstance(){
         return calendarButtonController;
     }
-
+  
     public String getDateNumber(){
         return this.dateNumber.getText();
     }
+
 }
