@@ -22,13 +22,13 @@ public class DataManager {
 
     private static final String calendarPath = "json/calendar.json";
 
+    private final ResourceLoader resourceLoader = new ResourceLoader();
+    private final HttpRequestHandler reqHandler = HttpRequestHandler.getInstance();
+
     private User currentUser = null;
     private Calendar calendar = null;
 
     private boolean online;
-
-    private final ResourceLoader resourceLoader = new ResourceLoader();
-    private final HttpRequestHandler reqHandler = HttpRequestHandler.getInstance();
 
     // Should be run upon successful login or registration
     public void initialize(User currentUser, boolean online) {

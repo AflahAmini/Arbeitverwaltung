@@ -7,9 +7,11 @@ import com.jfoenix.controls.JFXTimePicker;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.function.Consumer;
 
 public class AddEventController {
     //#region FXML variables
@@ -25,13 +27,13 @@ public class AddEventController {
     JFXButton cancelButton;
     //#endregion
 
-    private static AddEventController addEventController;
+    private LocalDate date;
 
-    @FXML
-    public void initialize(){
+    public void initialize(LocalDate date){
         eventStartTime.set24HourView(true);
         eventEndTime.set24HourView(true);
-        addEventController = this;
+
+        this.date = date;
     }
 
     public void addEventButton() {
@@ -55,21 +57,17 @@ public class AddEventController {
         }
     }
 
-    public void cancelButton(){
-        MainController.getInstance().changeView("fxml/EventView.fxml");
-    }
-
-    public static AddEventController getInstance(){
-        return addEventController;
+    public void cancelButton() {
+        MainController.getInstance().changeViewAndModify("fxml/EventView.fxml",
+                (Consumer<EventViewController>) controller -> controller.initialize(date));
     }
 
     private String getFullDateTime(JFXTimePicker timePicker) throws Exception {
         if (timePicker.getValue() == null)
             throw new Exception("Time cannot be empty!");
 
-        String date = String.format("%02d", EventViewController.getInstance().getDate());
+        String dateString = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-        return (CalendarViewController.getInstance().yearMonth() + "-" + date + "T" + timePicker.getValue() +
-                ":00" + OffsetDateTime.now().getOffset());
+        return (dateString + "T" + timePicker.getValue() + ":00" + OffsetDateTime.now().getOffset());
     }
 }

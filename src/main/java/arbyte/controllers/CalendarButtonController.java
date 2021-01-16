@@ -6,14 +6,21 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 
+import java.time.LocalDate;
+import java.util.function.Consumer;
+
 public class CalendarButtonController {
-    private static CalendarButtonController calendarButtonController;
     @FXML
     Text dateNumber;
     @FXML
     HBox eventCount;
-    void initInfo(int date, int numOfEvents) {
-        dateNumber.setText(String.valueOf(date));
+
+    private LocalDate date;
+
+    public void initialize(LocalDate date, int numOfEvents) {
+        this.date = date;
+
+        dateNumber.setText(String.format("%02d", date.getDayOfMonth()));
 
         final int maxEventCount = 4;
         final double eventCircleRadius = 3;
@@ -38,17 +45,8 @@ public class CalendarButtonController {
         }
     }
 
-    public void addButton() {
-        CalendarViewController.getInstance().setDate(Integer.parseInt(getDateNumber()));
-        MainController.getInstance().changeView("fxml/EventView.fxml");
+    public void switchToEventView() {
+        MainController.getInstance().changeViewAndModify("fxml/EventView.fxml",
+            (Consumer<EventViewController>) controller -> controller.initialize(date));
     }
-  
-    public static CalendarButtonController getInstance(){
-        return calendarButtonController;
-    }
-  
-    public String getDateNumber(){
-        return this.dateNumber.getText();
-    }
-
 }
