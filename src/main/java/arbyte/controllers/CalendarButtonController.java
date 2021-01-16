@@ -47,6 +47,6 @@ public class CalendarButtonController {
 
     public void switchToEventView() {
         MainController.getInstance().changeViewAndModify("fxml/EventView.fxml",
-            (Consumer<EventViewController>) controller -> controller.initialize(date));
+                (Consumer<EventViewController>) controller -> controller.initialize(date));
     }
 }

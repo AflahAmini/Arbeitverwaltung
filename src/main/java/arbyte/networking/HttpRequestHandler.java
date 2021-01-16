@@ -51,9 +51,9 @@ public class HttpRequestHandler {
                 .build();
 
         client = HttpClients.custom()
-                    .setDefaultRequestConfig(config)
-                    .setRedirectStrategy(new LaxRedirectStrategy())
-                    .build();
+                .setDefaultRequestConfig(config)
+                .setRedirectStrategy(new LaxRedirectStrategy())
+                .build();
     }
 
     public void setAccessToken(String accessToken) { this.accessToken = accessToken; }
@@ -88,9 +88,9 @@ public class HttpRequestHandler {
             MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
 
             HttpEntity entity = entityBuilder
-                                    .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
-                                    .addBinaryBody("toUpload", file, ContentType.DEFAULT_BINARY, file.getName())
-                                    .build();
+                    .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+                    .addBinaryBody("toUpload", file, ContentType.DEFAULT_BINARY, file.getName())
+                    .build();
 
             HttpPost post = new HttpPost(baseUrl + path);
             post.setEntity(entity);
@@ -135,15 +135,15 @@ public class HttpRequestHandler {
         System.out.println("Refreshing tokens");
 
         request(RequestType.POST, "/refresh-token",
-            String.format("{ \"refreshToken\": \"%s\" }", refreshToken),
-            response -> {
-                JsonObject resBodyJson = getResponseBodyJson(response);
+                String.format("{ \"refreshToken\": \"%s\" }", refreshToken),
+                response -> {
+                    JsonObject resBodyJson = getResponseBodyJson(response);
 
-                setAccessToken(resBodyJson.get("accessToken").getAsString());
-                setRefreshToken(resBodyJson.get("refreshToken").getAsString());
+                    setAccessToken(resBodyJson.get("accessToken").getAsString());
+                    setRefreshToken(resBodyJson.get("refreshToken").getAsString());
 
-                return null;
-            });
+                    return null;
+                });
     }
 
     // Generates a request from the given request type along with the content (for POST requests only).

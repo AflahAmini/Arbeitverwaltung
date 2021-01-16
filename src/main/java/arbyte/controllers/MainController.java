@@ -102,7 +102,7 @@ public class MainController {
         ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(2);
 
         ScheduledFuture<?> loadViewHandle = scheduledThreadPool.schedule(() ->
-                Platform.runLater(() -> changeView("fxml/LoadingView.fxml")),
+                        Platform.runLater(() -> changeView("fxml/LoadingView.fxml")),
                 waitBeforeLoadDuration, TimeUnit.SECONDS);
 
         scheduledThreadPool.scheduleAtFixedRate(() -> {
