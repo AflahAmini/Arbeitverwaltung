@@ -4,6 +4,7 @@ import arbyte.models.CalEvent;
 import arbyte.models.Calendar;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTimePicker;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 
@@ -11,21 +12,24 @@ import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
+
 public class AddEventController {
-    //#region FXML variables
+    private static AddEventController addEventController;
+    private int date;
     @FXML
     TextField eventName;
+
     @FXML
     JFXTimePicker eventStartTime;
+
     @FXML
     JFXTimePicker eventEndTime;
+
     @FXML
     JFXButton addEventButton;
+
     @FXML
     JFXButton cancelButton;
-    //#endregion
-
-    private static AddEventController addEventController;
 
     @FXML
     public void initialize(){
@@ -34,42 +38,54 @@ public class AddEventController {
         addEventController = this;
     }
 
-    public void addEventButton() {
-        try {
-            String name = eventName.getText();
-            String startTime = getFullDateTime(eventStartTime);
-            String endTime = getFullDateTime(eventEndTime);
+    public void addEventButton(ActionEvent Event) throws Exception {
 
+        String name = eventName.getText();
+        String startTime = intoString(eventStartTime);
+        String endTime = intoString(eventEndTime);
+
+        if(startTime.length() != 25 || endTime.length() != 25){
+            System.out.println("Error Wrong dateTime Format");
+            System.out.println(startTime.length());
+
+        }
+        else {
             ZonedDateTime eStartTime = ZonedDateTime.parse(startTime, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
             ZonedDateTime eEndTime = ZonedDateTime.parse(endTime, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
             System.out.println(startTime);
 
             CalEvent calEvent = new CalEvent(name, eStartTime, eEndTime);
 
-            Calendar calendar = new Calendar();
-            calendar.addEvent(calEvent);
-            calendar.toJson();
-            MainController.getInstance().changeView("fxml/CalendarView.fxml");
-        } catch (Exception e) {
-            MainController.getInstance().flash(e.getMessage(), true);
+            if(calEvent.isValid()) {
+                Calendar calendar = new Calendar();
+                calendar.addEvent(calEvent);
+                calendar.toJson();
+                MainController.getInstance().changeView("fxml/CalendarView.fxml");
+            }
+            else{
+                MainController.getInstance().flash("Invalid Event!", true);
+            }
         }
     }
 
-    public void cancelButton(){
+    public void cancelButton(ActionEvent action){
         MainController.getInstance().changeView("fxml/EventView.fxml");
+    }
+
+    public void setDate(String date){
+        this.date = Integer.parseInt(date);
     }
 
     public static AddEventController getInstance(){
         return addEventController;
     }
 
-    private String getFullDateTime(JFXTimePicker timePicker) throws Exception {
-        if (timePicker.getValue() == null)
-            throw new Exception("Time cannot be empty!");
+    private String intoString(JFXTimePicker timePicker){
+        String date = String.format("%02d",EventViewController.getInstance().getDate() );
 
-        String date = String.format("%02d", EventViewController.getInstance().getDate());
-
-        return (CalendarViewController.getInstance().yearMonth() + "-" + date + "T" + timePicker.getValue() +
+        return (CalendarViewController.getInstance().yearMonth()+ "-" + date  + "T" + timePicker.getValue() +
                 ":00" + OffsetDateTime.now().getOffset());
+
     }
+
 }
