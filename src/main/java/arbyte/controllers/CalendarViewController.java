@@ -12,7 +12,6 @@ import javafx.scene.layout.GridPane;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,13 +30,17 @@ public class CalendarViewController {
     GridPane gridCalendar;
     //#endregion
 
-    private int year = LocalDateTime.now().getYear();
-    private int month = LocalDateTime.now().getMonthValue();
+    private int year;
+    private int month;
 
     private Calendar calendar;
 
     @FXML
     public void initialize(){
+        String monthYear = DataManager.getInstance().lastMonthYear;
+        year = Integer.parseInt(monthYear.substring(3));
+        month = Integer.parseInt(monthYear.substring(0, 2));
+
         calendar = DataManager.getInstance().getCalendar();
 
         updateCalendarView();
@@ -49,6 +52,7 @@ public class CalendarViewController {
             month = 12;
             year--;
         }
+        DataManager.getInstance().lastMonthYear = String.format("%02d-%d", month, year);
         updateCalendarView();
     }
 
@@ -58,6 +62,7 @@ public class CalendarViewController {
             month = 1;
             year++;
         }
+        DataManager.getInstance().lastMonthYear = String.format("%02d-%d", month, year);
         updateCalendarView();
     }
 
@@ -102,7 +107,7 @@ public class CalendarViewController {
                 CalendarButtonController btnController = btnLoader.getController();
 
                 LocalDate date = LocalDate.of(year, month, dayCount + 1);
-                btnController.initialize(date, getEventsOfDay(monthEventStack, dayCount + 1 ).size());
+                btnController.initialize(date, getEventsOfDay(monthEventStack, dayCount + 1 ));
 
                 // Jump to next column, same row
                 x++;

@@ -1,6 +1,7 @@
 package arbyte.helper;
 
 import arbyte.controllers.MainController;
+import arbyte.models.CalEvent;
 import arbyte.models.Calendar;
 import arbyte.models.Session;
 import arbyte.models.User;
@@ -11,6 +12,8 @@ import com.google.gson.JsonObject;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DataManager {
     //#region Singleton stuff
@@ -30,6 +33,9 @@ public class DataManager {
     private final ResourceLoader resourceLoader = new ResourceLoader();
     private final HttpRequestHandler reqHandler = HttpRequestHandler.getInstance();
 
+    public String lastMonthYear = "";
+    public List<CalEvent> lastEventsList = new ArrayList<>();
+
     private User currentUser = null;
     private Calendar calendar = null;
     private Session session = null;
@@ -38,6 +44,9 @@ public class DataManager {
 
     // Should be run upon successful login or registration
     public void initialize(User currentUser, boolean online) {
+        lastMonthYear = String.format("%02d-%d",
+                LocalDate.now().getMonthValue(), LocalDate.now().getYear());
+
         currentUser.clearPasswords();
         this.currentUser = currentUser;
         this.online = online;
@@ -45,9 +54,7 @@ public class DataManager {
         fetchCalendar();
     }
 
-    public Calendar getCalendar() {
-        return calendar;
-    }
+    public Calendar getCalendar() { return calendar; }
 
     // Fetches the calendar json from the server if online, otherwise parses
     // from the local json file into the calendar object.
