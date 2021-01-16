@@ -3,7 +3,6 @@ package arbyte.models;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 
 public class CalEvent {
@@ -43,13 +42,4 @@ public class CalEvent {
         return String.format("%02d-%d", month, year);
     }
 
-    public String getFormattedStartTime(){
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm");
-        return startTime.format(dtf);
-    }
-
-    public String getFormattedEndTime(){
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm");
-        return endTime.format(dtf);
-    }
 }

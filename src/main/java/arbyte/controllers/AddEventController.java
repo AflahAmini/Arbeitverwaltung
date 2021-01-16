@@ -43,7 +43,6 @@ public class AddEventController {
         String name = eventName.getText();
         String startTime = intoString(eventStartTime);
         String endTime = intoString(eventEndTime);
-        System.out.println(eventStartTime.getValue());
 
         if(startTime.length() != 25 || endTime.length() != 25){
             System.out.println("Error Wrong dateTime Format");

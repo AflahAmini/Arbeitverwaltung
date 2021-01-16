@@ -1,7 +1,6 @@
 package arbyte.controllers;
 
 import arbyte.helper.SceneHelper;
-import arbyte.models.CalEvent;
 import arbyte.models.Calendar;
 import com.jfoenix.controls.JFXButton;
 import javafx.fxml.FXML;
@@ -13,9 +12,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
 
 public class CalendarViewController {
 
@@ -85,14 +81,6 @@ public class CalendarViewController {
         int x = firstDay == 7 ? 0 : firstDay;
         int y = 0;
 
-        String monthYear = String.format("%02d-%d", month, year);
-        Stack<CalEvent> monthEventStack = new Stack<>();
-        List<CalEvent> monthEventList = calendar.getEventsOfMonth(monthYear);
-
-        for(int i = monthEventList.size()-1; i >= 0; i--){
-            monthEventStack.push(monthEventList.get(i));
-        }
-
         // Iterate until the last day of the month
         while(dayCount < yearMonthObject.getMonth().maxLength()){
             FXMLLoader btnLoader = SceneHelper.getFXMLLoader("fxml/CalendarButton.fxml");
@@ -106,9 +94,9 @@ public class CalendarViewController {
 
                 // Sets the values in the calendar button
                 CalendarButtonController btnController = btnLoader.getController();
+                String monthYear = String.format("%02d-%d", month, year);
 
-                btnController.initInfo(dayCount + 1,
-                        getEventsofDay(monthEventStack, dayCount + 1));
+                btnController.initInfo(dayCount + 1, calendar.getEventsOfMonth(monthYear).size());
 
                 // Jump to next column, same row
                 x++;
@@ -133,18 +121,7 @@ public class CalendarViewController {
     public void setDate(int i){
         date = i;
     }
-
     public int getDate(){
         return date;
-    }
-
-    private List<CalEvent> getEventsofDay(Stack<CalEvent> stack, int desiredDay){
-        List<CalEvent> eventsList = new ArrayList<>();
-
-        while(!stack.empty() && stack.peek().getStartTime().getDayOfMonth() == desiredDay){
-            eventsList.add(stack.pop());
-        }
-
-        return eventsList;
     }
 }
