@@ -35,18 +35,6 @@ public class EventViewController {
 
         labelMonth.setText(String.format("%02d", date.getMonthValue()));
         labelDate.setText(String.format("%02d", date.getDayOfMonth()));
-
-        FXMLLoader loader =  SceneHelper.getFXMLLoader("fxml/EventListElement.fxml");
-
-        try {
-            listView.getItems().add(loader.load());
-            EventListElementController controller = loader.getController();
-
-            controller.setValues("123", "123", "123");
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
     }
 
     public void addEventButton(){
