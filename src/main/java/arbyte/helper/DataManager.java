@@ -1,11 +1,16 @@
 package arbyte.helper;
 
+import arbyte.controllers.MainController;
 import arbyte.models.Calendar;
+import arbyte.models.Session;
 import arbyte.models.User;
 import arbyte.networking.HttpRequestHandler;
 import arbyte.networking.RequestType;
+import com.google.gson.JsonObject;
 
 import java.io.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class DataManager {
     //#region Singleton stuff
@@ -27,6 +32,7 @@ public class DataManager {
 
     private User currentUser = null;
     private Calendar calendar = null;
+    private Session session = null;
 
     private boolean online;
 
@@ -70,6 +76,9 @@ public class DataManager {
                 } catch (Exception e) {
                     System.out.println("fetchCalendar : Something went wrong!");
                     e.printStackTrace();
+
+                    calendar = new Calendar();
+                    saveCalendar();
                 }
 
                 return null;
@@ -158,6 +167,88 @@ public class DataManager {
             System.out.println("Error while writing to calendar json!");
             e.printStackTrace();
         }
+    }
+
+    // Sends a POST request to /sessions to create a session with today's date.
+    // The response should contain a message and the session entry in the db.
+    private void createSession() {
+        if (!online) {
+            session = new Session();
+            return;
+        }
+
+        LocalDate date = LocalDate.now();
+        String payload = String.format("{\"date\": \"%s\"}", date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+
+        reqHandler.requestWithAuth(RequestType.POST, "/sessions", payload,
+        response -> {
+            try {
+                JsonObject responseBody = reqHandler.getResponseBodyJson(response);
+
+                if (response.getStatusLine().getStatusCode() == 200) {
+                    String message = responseBody.get("message").getAsString();
+                    flashMessage(message, false);
+
+                    JsonObject sessionObj = responseBody.get("session").getAsJsonObject();
+
+                    long activeSeconds = sessionObj.get("activeDuration").getAsLong();
+                    long pausedSeconds = sessionObj.get("inactiveDuration").getAsLong();
+
+                    if (activeSeconds < 0 || pausedSeconds < 0)
+                        throw new Exception("Some durations are negative!");
+
+                    if (activeSeconds > 0 || pausedSeconds > 0)
+                        session = new Session(activeSeconds, pausedSeconds);
+                    else
+                        session = new Session();
+                } else {
+                    String error = responseBody.get("error").getAsString();
+                    flashMessage(error, true);
+                }
+            } catch (Exception e) {
+                System.out.println("createSession : Something went wrong!");
+                e.printStackTrace();
+
+                session = new Session();
+            }
+
+            return null;
+        }).exceptionally(e -> {
+            System.out.println(connectionFailedMessage("createSession"));
+
+            online = false;
+            return null;
+        });
+    }
+
+    // Sends a PUT request to /sessions with the session object update the corresponding session.
+    private void updateSession() {
+        if (!online || session == null)
+            return;
+
+        String sessionJson = session.toJson();
+
+        reqHandler.requestWithAuth(RequestType.PUT, "/sessions", sessionJson,
+        response -> {
+            if (response.getStatusLine().getStatusCode() == 204) {
+                System.out.println("Session successfully updated on the server");
+            } else {
+                System.out.println("Session update failed!");
+                System.out.println(response.getStatusLine().getReasonPhrase());
+            }
+
+            return null;
+        }).exceptionally(e -> {
+            System.out.println(connectionFailedMessage("createSession"));
+
+            e.printStackTrace();
+            online = false;
+            return null;
+        });
+    }
+
+    private void flashMessage(String message, boolean isError) {
+        MainController.getInstance().flash(message, isError);
     }
 
     private String connectionFailedMessage(String context) {

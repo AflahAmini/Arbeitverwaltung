@@ -2,6 +2,9 @@ package arbyte.models;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 public class Session {
     private Instant lastActiveInstant;
@@ -13,15 +16,20 @@ public class Session {
     private boolean isPaused;
 
     public Session() {
-        this.lastActiveInstant = Instant.now();
-        this.lastPausedInstant = Instant.now();
-
-        this.totalActiveDuration = Duration.ZERO;
-        this.totalPausedDuration = Duration.ZERO;
-
-        this.isPaused = false;
+        init();
 
         System.out.println("Session has started at " + lastActiveInstant);
+    }
+
+    // Session constructor with active- and pausedSeconds params to
+    // store as durations. Should be used when resuming a session
+    public Session(long activeSeconds, long pausedSeconds) {
+        init();
+
+        this.totalActiveDuration = Duration.ofSeconds(activeSeconds);
+        this.totalPausedDuration = Duration.ofSeconds(pausedSeconds);
+
+        System.out.println("Session resumed at " + lastActiveInstant);
     }
 
     public boolean isPaused() {
@@ -50,6 +58,15 @@ public class Session {
         return totalPausedDuration;
     }
 
+    public String toJson() {
+        LocalDate date = LocalDate.from(lastActiveInstant);
+
+        return String.format("| {\"date\": \"%s\", \"activeDuration\": %d, \"inactiveDuration\": %d }",
+                date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                totalActiveDuration.getSeconds(),
+                totalPausedDuration.getSeconds());
+    }
+
     // Pauses or unpauses the session
     public void toggleSessionPause() {
         isPaused = !isPaused;
@@ -63,5 +80,15 @@ public class Session {
             totalPausedDuration = totalPausedDuration.plus(Duration.between(lastPausedInstant, Instant.now()));
             lastActiveInstant = Instant.now();
         }
+    }
+
+    private void init() {
+        this.lastActiveInstant = Instant.now();
+        this.lastPausedInstant = Instant.now();
+
+        this.totalActiveDuration = Duration.ZERO;
+        this.totalPausedDuration = Duration.ZERO;
+
+        this.isPaused = false;
     }
 }
