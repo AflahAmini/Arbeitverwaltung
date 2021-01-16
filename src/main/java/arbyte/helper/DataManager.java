@@ -1,11 +1,19 @@
 package arbyte.helper;
 
+import arbyte.controllers.MainController;
+import arbyte.models.CalEvent;
 import arbyte.models.Calendar;
+import arbyte.models.Session;
 import arbyte.models.User;
 import arbyte.networking.HttpRequestHandler;
 import arbyte.networking.RequestType;
+import com.google.gson.JsonObject;
 
 import java.io.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DataManager {
     //#region Singleton stuff
@@ -25,13 +33,20 @@ public class DataManager {
     private final ResourceLoader resourceLoader = new ResourceLoader();
     private final HttpRequestHandler reqHandler = HttpRequestHandler.getInstance();
 
+    public String lastMonthYear = "";
+    public List<CalEvent> lastEventsList = new ArrayList<>();
+
     private User currentUser = null;
     private Calendar calendar = null;
+    private Session session = null;
 
     private boolean online;
 
     // Should be run upon successful login or registration
     public void initialize(User currentUser, boolean online) {
+        lastMonthYear = String.format("%02d-%d",
+                LocalDate.now().getMonthValue(), LocalDate.now().getYear());
+
         currentUser.clearPasswords();
         this.currentUser = currentUser;
         this.online = online;
@@ -39,9 +54,7 @@ public class DataManager {
         fetchCalendar();
     }
 
-    public Calendar getCalendar() {
-        return calendar;
-    }
+    public Calendar getCalendar() { return calendar; }
 
     // Fetches the calendar json from the server if online, otherwise parses
     // from the local json file into the calendar object.
@@ -49,31 +62,34 @@ public class DataManager {
         if (online) {
             // Fetch the user's json from the server then save it to calendar.json
             reqHandler.requestWithAuth(RequestType.GET, "/calendar/" + currentUser.id, "",
-                    response -> {
-                        try {
-                            // Parse the calendar json into the calendar object
-                            if (response.getStatusLine().getStatusCode() == 200) {
-                                String responseString = reqHandler.getResponseBody(response);
-                                calendar = Calendar.fromJson(responseString);
-                                saveCalendar();
-                            }
-                            // Throw an exception if the status code is other than 200 and 404
-                            else {
-                                calendar = new Calendar();
-                                saveCalendar();
-                                uploadCalendar();
+            response -> {
+                try {
+                    // Parse the calendar json into the calendar object
+                    if (response.getStatusLine().getStatusCode() == 200) {
+                        String responseString = reqHandler.getResponseBody(response);
+                        calendar = Calendar.fromJson(responseString);
+                        saveCalendar();
+                    }
+                    // Throw an exception if the status code is other than 200 and 404
+                    else {
+                        calendar = new Calendar();
+                        saveCalendar();
+                        uploadCalendar();
 
-                                if (response.getStatusLine().getStatusCode() != 404)
-                                    throw new Exception(response.getStatusLine().getReasonPhrase());
-                            }
+                        if (response.getStatusLine().getStatusCode() != 404)
+                            throw new Exception(response.getStatusLine().getReasonPhrase());
+                    }
 
-                        } catch (Exception e) {
-                            System.out.println("fetchCalendar : Something went wrong!");
-                            e.printStackTrace();
-                        }
+                } catch (Exception e) {
+                    System.out.println("fetchCalendar : Something went wrong!");
+                    e.printStackTrace();
 
-                        return null;
-                    }).exceptionally(e -> {
+                    calendar = new Calendar();
+                    saveCalendar();
+                }
+
+                return null;
+            }).exceptionally(e -> {
                 System.out.println(connectionFailedMessage("fetchCalendar"));
 
                 // Redo fetchCalendar if connection is lost with online false
@@ -131,12 +147,12 @@ public class DataManager {
 
         // Sends an upload request to the server
         reqHandler.uploadFileAuth("/calendar/" + currentUser.id, f,
-                response -> {
-                    if (response.getStatusLine().getStatusCode() != 200)
-                        System.out.println("Upload failed");
+        response -> {
+            if (response.getStatusLine().getStatusCode() != 200)
+                System.out.println("Upload failed");
 
-                    return null;
-                }).exceptionally(e -> {
+            return null;
+        }).exceptionally(e -> {
             System.out.println(connectionFailedMessage("uploadCalendar"));
 
             online = false;
@@ -158,6 +174,88 @@ public class DataManager {
             System.out.println("Error while writing to calendar json!");
             e.printStackTrace();
         }
+    }
+
+    // Sends a POST request to /sessions to create a session with today's date.
+    // The response should contain a message and the session entry in the db.
+    private void createSession() {
+        if (!online) {
+            session = new Session();
+            return;
+        }
+
+        LocalDate date = LocalDate.now();
+        String payload = String.format("{\"date\": \"%s\"}", date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+
+        reqHandler.requestWithAuth(RequestType.POST, "/sessions", payload,
+        response -> {
+            try {
+                JsonObject responseBody = reqHandler.getResponseBodyJson(response);
+
+                if (response.getStatusLine().getStatusCode() == 200) {
+                    String message = responseBody.get("message").getAsString();
+                    flashMessage(message, false);
+
+                    JsonObject sessionObj = responseBody.get("session").getAsJsonObject();
+
+                    long activeSeconds = sessionObj.get("activeDuration").getAsLong();
+                    long pausedSeconds = sessionObj.get("inactiveDuration").getAsLong();
+
+                    if (activeSeconds < 0 || pausedSeconds < 0)
+                        throw new Exception("Some durations are negative!");
+
+                    if (activeSeconds > 0 || pausedSeconds > 0)
+                        session = new Session(activeSeconds, pausedSeconds);
+                    else
+                        session = new Session();
+                } else {
+                    String error = responseBody.get("error").getAsString();
+                    flashMessage(error, true);
+                }
+            } catch (Exception e) {
+                System.out.println("createSession : Something went wrong!");
+                e.printStackTrace();
+
+                session = new Session();
+            }
+
+            return null;
+        }).exceptionally(e -> {
+            System.out.println(connectionFailedMessage("createSession"));
+
+            online = false;
+            return null;
+        });
+    }
+
+    // Sends a PUT request to /sessions with the session object update the corresponding session.
+    private void updateSession() {
+        if (!online || session == null)
+            return;
+
+        String sessionJson = session.toJson();
+
+        reqHandler.requestWithAuth(RequestType.PUT, "/sessions", sessionJson,
+        response -> {
+            if (response.getStatusLine().getStatusCode() == 204) {
+                System.out.println("Session successfully updated on the server");
+            } else {
+                System.out.println("Session update failed!");
+                System.out.println(response.getStatusLine().getReasonPhrase());
+            }
+
+            return null;
+        }).exceptionally(e -> {
+            System.out.println(connectionFailedMessage("createSession"));
+
+            e.printStackTrace();
+            online = false;
+            return null;
+        });
+    }
+
+    private void flashMessage(String message, boolean isError) {
+        MainController.getInstance().flash(message, isError);
     }
 
     private String connectionFailedMessage(String context) {

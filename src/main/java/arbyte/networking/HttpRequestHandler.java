@@ -9,6 +9,7 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -157,6 +158,11 @@ public class HttpRequestHandler {
                 HttpPost post = new HttpPost(baseUrl + path);
                 post.setEntity(new StringEntity(payload, ContentType.APPLICATION_JSON));
                 request = post;
+                break;
+            case PUT:
+                HttpPut put = new HttpPut(baseUrl + path);
+                put.setEntity(new StringEntity(payload, ContentType.APPLICATION_JSON));
+                request = put;
                 break;
             default:
                 throw new IllegalArgumentException("RequestType is undefined!");
