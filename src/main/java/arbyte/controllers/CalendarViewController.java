@@ -1,5 +1,6 @@
 package arbyte.controllers;
 
+import arbyte.helper.DataManager;
 import arbyte.helper.SceneHelper;
 import arbyte.models.CalEvent;
 import arbyte.models.Calendar;
@@ -32,21 +33,14 @@ public class CalendarViewController {
 
     private int year = LocalDateTime.now().getYear();
     private int month = LocalDateTime.now().getMonthValue();
-    private int date ;
 
-    private static CalendarViewController calendarViewController;
     private Calendar calendar;
-
-    public CalendarViewController() {
-        if (calendar == null) {
-            calendar = new Calendar();
-        }
-    }
 
     @FXML
     public void initialize(){
+        calendar = DataManager.getInstance().getCalendar();
+
         updateCalendarView();
-        calendarViewController = this;
     }
 
     public void previousButton(){
@@ -75,8 +69,8 @@ public class CalendarViewController {
     private void generateCalendarButtons() {
         gridCalendar.getChildren().clear();
 
-        YearMonth yearMonthObject = YearMonth.of(year, month); //to get number of days in a month
-        LocalDate firstOfMonth = yearMonthObject.atDay( 1 );
+        YearMonth yearMonth = YearMonth.of(year, month);
+        LocalDate firstOfMonth = yearMonth.atDay( 1 );
 
         int dayCount = 0;
         int firstDay = firstOfMonth.getDayOfWeek().getValue();
@@ -94,7 +88,7 @@ public class CalendarViewController {
         }
 
         // Iterate until the last day of the month
-        while(dayCount < yearMonthObject.getMonth().maxLength()){
+        while(dayCount < yearMonth.lengthOfMonth()){
             FXMLLoader btnLoader = SceneHelper.getFXMLLoader("fxml/CalendarButton.fxml");
 
             if(x < gridCalendar.getColumnConstraints().size()){
@@ -107,8 +101,8 @@ public class CalendarViewController {
                 // Sets the values in the calendar button
                 CalendarButtonController btnController = btnLoader.getController();
 
-                btnController.initInfo(dayCount + 1,
-                        getEventsofDay(monthEventStack, dayCount + 1));
+                LocalDate date = LocalDate.of(year, month, dayCount + 1);
+                btnController.initialize(date, getEventsOfDay(monthEventStack, dayCount + 1 ).size());
 
                 // Jump to next column, same row
                 x++;
@@ -122,23 +116,7 @@ public class CalendarViewController {
         }
     }
 
-    public static CalendarViewController getInstance(){
-        return calendarViewController;
-    }
-
-    public String yearMonth(){
-        return String.format("%d-%02d", year, month);
-    }
-
-    public void setDate(int i){
-        date = i;
-    }
-
-    public int getDate(){
-        return date;
-    }
-
-    private List<CalEvent> getEventsofDay(Stack<CalEvent> stack, int desiredDay){
+    private List<CalEvent> getEventsOfDay(Stack<CalEvent> stack, int desiredDay){
         List<CalEvent> eventsList = new ArrayList<>();
 
         while(!stack.empty() && stack.peek().getStartTime().getDayOfMonth() == desiredDay){

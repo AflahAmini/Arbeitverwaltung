@@ -1,92 +1,74 @@
 package arbyte.controllers;
 
+import arbyte.helper.DataManager;
 import arbyte.models.CalEvent;
 import arbyte.models.Calendar;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTimePicker;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-
+import java.util.function.Consumer;
 
 public class AddEventController {
-    private static AddEventController addEventController;
-    private int date;
+    //#region FXML variables
     @FXML
     TextField eventName;
-
     @FXML
     JFXTimePicker eventStartTime;
-
     @FXML
     JFXTimePicker eventEndTime;
-
     @FXML
     JFXButton addEventButton;
-
     @FXML
     JFXButton cancelButton;
+    //#endregion
 
-    @FXML
-    public void initialize(){
+    private LocalDate date;
+
+    public void initialize(LocalDate date){
         eventStartTime.set24HourView(true);
         eventEndTime.set24HourView(true);
-        addEventController = this;
+
+        this.date = date;
     }
 
-    public void addEventButton(ActionEvent Event) throws Exception {
+    public void addEventButton() {
+        try {
+            String name = eventName.getText();
+            String startTime = getFullDateTime(eventStartTime);
+            String endTime = getFullDateTime(eventEndTime);
 
-        String name = eventName.getText();
-        String startTime = intoString(eventStartTime);
-        String endTime = intoString(eventEndTime);
-        System.out.println(eventStartTime.getValue());
-
-        if(startTime.length() != 25 || endTime.length() != 25){
-            System.out.println("Error Wrong dateTime Format");
-            System.out.println(startTime.length());
-
-        }
-        else {
             ZonedDateTime eStartTime = ZonedDateTime.parse(startTime, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
             ZonedDateTime eEndTime = ZonedDateTime.parse(endTime, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
             System.out.println(startTime);
 
             CalEvent calEvent = new CalEvent(name, eStartTime, eEndTime);
 
-            if(calEvent.isValid()) {
-                Calendar calendar = new Calendar();
-                calendar.addEvent(calEvent);
-                calendar.toJson();
-                MainController.getInstance().changeView("fxml/CalendarView.fxml");
-            }
-            else{
-                MainController.getInstance().flash("Invalid Event!", true);
-            }
+            Calendar calendar = DataManager.getInstance().getCalendar();
+            calendar.addEvent(calEvent);
+            calendar.toJson();
+            MainController.getInstance().changeView("fxml/CalendarView.fxml");
+        } catch (Exception e) {
+            MainController.getInstance().flash(e.getMessage(), true);
         }
     }
 
-    public void cancelButton(ActionEvent action){
-        MainController.getInstance().changeView("fxml/EventView.fxml");
+    public void cancelButton() {
+        MainController.getInstance().changeViewAndModify("fxml/EventView.fxml",
+                (Consumer<EventViewController>) controller -> controller.initialize(date));
     }
 
-    public void setDate(String date){
-        this.date = Integer.parseInt(date);
+    private String getFullDateTime(JFXTimePicker timePicker) throws Exception {
+        if (timePicker.getValue() == null)
+            throw new Exception("Time cannot be empty!");
+
+        String dateString = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+        return (dateString + "T" + timePicker.getValue() + ":00" + OffsetDateTime.now().getOffset());
     }
-
-    public static AddEventController getInstance(){
-        return addEventController;
-    }
-
-    private String intoString(JFXTimePicker timePicker){
-        String date = String.format("%02d",EventViewController.getInstance().getDate() );
-
-        return (CalendarViewController.getInstance().yearMonth()+ "-" + date  + "T" + timePicker.getValue() +
-                ":00" + OffsetDateTime.now().getOffset());
-
-    }
-
 }

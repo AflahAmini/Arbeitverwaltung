@@ -51,46 +51,48 @@ public class RegisterController {
             HttpRequestHandler reqHandler = HttpRequestHandler.getInstance();
 
             // Sends a POST request to /register with the user json
-            reqHandler.request(RequestType.POST, "/register", user.toJson())
-            .thenAccept((response) -> {
-                JsonObject responseBody = null;
-                try {
-                    responseBody = reqHandler.getResponseBodyJson(response);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            reqHandler.request(RequestType.POST, "/register", user.toJson(),
+                    response -> {
+                        JsonObject responseBody = null;
+                        try {
+                            responseBody = reqHandler.getResponseBodyJson(response);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
 
-                // Assertion error if json cannot be parsed
-                assert responseBody != null;
+                        // Assertion error if json cannot be parsed
+                        assert responseBody != null;
 
-                if (response.getStatusLine().getStatusCode() == 200) {
-                    String accessToken = responseBody.get("accessToken").getAsString();
-                    String refreshToken = responseBody.get("refreshToken").getAsString();
+                        if (response.getStatusLine().getStatusCode() == 200) {
+                            String accessToken = responseBody.get("accessToken").getAsString();
+                            String refreshToken = responseBody.get("refreshToken").getAsString();
 
-                    int id = responseBody.get("id").getAsInt();
+                            int id = responseBody.get("id").getAsInt();
 
-                    // Set access and refresh tokens for auth requests
-                    reqHandler.setAccessToken(accessToken);
-                    reqHandler.setRefreshToken(refreshToken);
+                            // Set access and refresh tokens for auth requests
+                            reqHandler.setAccessToken(accessToken);
+                            reqHandler.setRefreshToken(refreshToken);
 
-                    // Store the credentials as a hash
-                    Hasher.storeCredentials(emailField.getText(), passField.getText());
+                            // Store the credentials as a hash
+                            Hasher.storeCredentials(emailField.getText(), passField.getText());
 
-                    Platform.runLater(() -> {
-                        user.clearPasswords();
-                        user.id = id;
-                        DataManager.getInstance().initialize(user, true);
+                            Platform.runLater(() -> {
+                                user.clearPasswords();
+                                user.id = id;
+                                DataManager.getInstance().initialize(user, true);
 
-                        // Switch to main view with a flash message
-                        SceneHelper.showMainPage();
-                        MainController.getInstance().flash("Register successful!", false);
-                    });
-                } else {
-                    String message = responseBody.get("error").getAsString();
+                                // Switch to main view with a flash message
+                                SceneHelper.showMainPage();
+                                MainController.getInstance().flash("Register successful!", false);
+                            });
+                        } else {
+                            String message = responseBody.get("error").getAsString();
 
-                    setError(message);
-                }
-            }).exceptionally(e -> {
+                            setError(message);
+                        }
+
+                        return null;
+                    }).exceptionally(e -> {
                 if (e instanceof AssertionError) {
                     setError("Error while parsing response JSON!");
                 }
