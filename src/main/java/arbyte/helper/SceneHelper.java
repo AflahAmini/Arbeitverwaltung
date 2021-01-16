@@ -15,6 +15,7 @@ public class SceneHelper {
     public static void initialise(Stage stage){
         currentStage = stage;
         currentStage.setResizable(false);
+        currentStage.setTitle("Arbyte");
     }
 
     public static void showLogInPage() {

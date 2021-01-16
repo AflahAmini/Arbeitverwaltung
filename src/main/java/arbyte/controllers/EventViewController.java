@@ -1,6 +1,8 @@
 package arbyte.controllers;
 
 import arbyte.helper.SceneHelper;
+import arbyte.helper.test.TestHelper;
+import arbyte.models.CalEvent;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
 import javafx.event.ActionEvent;
@@ -35,21 +37,16 @@ public class EventViewController {
     @FXML
     public void initialize(){
         eventViewController = this;
-        FXMLLoader loader =  SceneHelper.getFXMLLoader("fxml/EventListElement.fxml");
+
         setDate(String.valueOf(CalendarViewController.getInstance().getDate()));
-        setMonth(CalendarViewController.getInstance().yearMonth().substring(5,
-                CalendarViewController.getInstance().yearMonth().length()));
+        setMonth(CalendarViewController.getInstance().yearMonth().substring(5));
         setDateMonth();
 
-        try {
-            listView.getItems().add(loader.load());
-            EventListElementController controller = loader.getController();
+        for(int i = 0; i < 10; i++){
+            CalEvent event6 = new CalEvent("event", TestHelper.dateTimeFrom("20200103T02:00"),
+                    TestHelper.dateTimeFrom("20200103T03:00"));
 
-            controller.setValues("123", "123", "123");
-
-        }
-        catch(Exception e){
-            e.printStackTrace();
+            addToListView(event6);
         }
     }
 
@@ -80,5 +77,17 @@ public class EventViewController {
 
     public int getDate(){
         return date;
+    }
+
+    private void addToListView (CalEvent calEvent){
+        FXMLLoader loader =  SceneHelper.getFXMLLoader("fxml/EventListElement.fxml");
+        try {
+            listView.getItems().add(loader.load());
+            EventListElementController controller = loader.getController();
+            controller.setValues(calEvent.getFormattedStartTime(), calEvent.getFormattedEndTime(), calEvent.getName());
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
     }
 }
