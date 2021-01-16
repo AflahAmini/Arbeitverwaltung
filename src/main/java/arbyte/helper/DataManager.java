@@ -39,6 +39,10 @@ public class DataManager {
         fetchCalendar();
     }
 
+    public Calendar getCalendar() {
+        return calendar;
+    }
+
     // Fetches the calendar json from the server if online, otherwise parses
     // from the local json file into the calendar object.
     private void fetchCalendar() {

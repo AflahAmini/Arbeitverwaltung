@@ -1,5 +1,6 @@
 package arbyte.controllers;
 
+import arbyte.helper.DataManager;
 import arbyte.models.CalEvent;
 import arbyte.models.Calendar;
 import com.jfoenix.controls.JFXButton;
@@ -48,7 +49,7 @@ public class AddEventController {
 
             CalEvent calEvent = new CalEvent(name, eStartTime, eEndTime);
 
-            Calendar calendar = new Calendar();
+            Calendar calendar = DataManager.getInstance().getCalendar();
             calendar.addEvent(calEvent);
             calendar.toJson();
             MainController.getInstance().changeView("fxml/CalendarView.fxml");

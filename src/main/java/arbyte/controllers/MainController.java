@@ -1,5 +1,6 @@
 package arbyte.controllers;
 
+import arbyte.helper.DataManager;
 import arbyte.helper.SessionMouseListener;
 import arbyte.helper.SceneHelper;
 import arbyte.models.Session;
@@ -25,6 +26,10 @@ public class MainController {
         return mainController;
     }
 
+    // Duration in seconds how long the program should wait
+    // before the loading screen shows
+    private static final int waitBeforeLoadDuration = 2;
+
     //#region FXML variables
     @FXML
     AnchorPane mainView;
@@ -38,6 +43,8 @@ public class MainController {
 
     private Session curSession;
 
+    private final DataManager dataManager = DataManager.getInstance();
+
     @FXML
     Label labelEmail;
 
@@ -45,7 +52,9 @@ public class MainController {
     public void initialize() {
         mainController = this;
         curSession = new Session();
-        changeView("fxml/CalendarView.fxml");
+        loadThenChangeView("fxml/CalendarView.fxml",
+                () -> dataManager.getCalendar() != null,
+                CalendarViewController::initialize);
 
         startSessionUpdateSchedule();
         setStatus(true);
@@ -84,6 +93,28 @@ public class MainController {
 
         T controller = loader.getController();
         controllerCallback.accept(controller);
+    }
+
+    // Runs two scheduled tasks. One waits until the waiting duration then shows a loading screen,
+    // and another periodically runs the validator supplier. If the validator returns true, then
+    // the view is switched to the desired view while running the callback for the controller.
+    public <T> void loadThenChangeView(String fxmlPath, Supplier<Boolean> validator, Consumer<T> controllerCallback) {
+        ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(2);
+
+        ScheduledFuture<?> loadViewHandle = scheduledThreadPool.schedule(() ->
+                Platform.runLater(() -> changeView("fxml/LoadingView.fxml")),
+                waitBeforeLoadDuration, TimeUnit.SECONDS);
+
+        scheduledThreadPool.scheduleAtFixedRate(() -> {
+            System.out.println("Check");
+
+            if (validator.get()) {
+                Platform.runLater(() -> changeViewAndModify(fxmlPath, controllerCallback));
+
+                loadViewHandle.cancel(false);
+                scheduledThreadPool.shutdown();
+            }
+        }, 0, 250, TimeUnit.MILLISECONDS);
     }
 
     // Shows a flash message on main view

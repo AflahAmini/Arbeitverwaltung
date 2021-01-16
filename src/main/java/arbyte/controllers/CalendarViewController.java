@@ -1,5 +1,6 @@
 package arbyte.controllers;
 
+import arbyte.helper.DataManager;
 import arbyte.helper.SceneHelper;
 import arbyte.models.Calendar;
 import com.jfoenix.controls.JFXButton;
@@ -31,14 +32,10 @@ public class CalendarViewController {
 
     private Calendar calendar;
 
-    public CalendarViewController() {
-        if (calendar == null) {
-            calendar = new Calendar();
-        }
-    }
-
     @FXML
     public void initialize(){
+        calendar = DataManager.getInstance().getCalendar();
+
         updateCalendarView();
     }
 
