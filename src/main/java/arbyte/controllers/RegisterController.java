@@ -51,8 +51,8 @@ public class RegisterController {
             HttpRequestHandler reqHandler = HttpRequestHandler.getInstance();
 
             // Sends a POST request to /register with the user json
-            reqHandler.request(RequestType.POST, "/register", user.toJson())
-            .thenAccept((response) -> {
+            reqHandler.request(RequestType.POST, "/register", user.toJson(),
+            response -> {
                 JsonObject responseBody = null;
                 try {
                     responseBody = reqHandler.getResponseBodyJson(response);
@@ -90,6 +90,8 @@ public class RegisterController {
 
                     setError(message);
                 }
+
+                return null;
             }).exceptionally(e -> {
                 if (e instanceof AssertionError) {
                     setError("Error while parsing response JSON!");

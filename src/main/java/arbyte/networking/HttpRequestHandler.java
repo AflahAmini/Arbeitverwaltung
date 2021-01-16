@@ -5,8 +5,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -17,11 +17,8 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.LaxRedirectStrategy;
-import org.apache.http.util.EntityUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.io.*;
 import java.util.concurrent.CompletableFuture;
 
 public class HttpRequestHandler {
@@ -63,26 +60,29 @@ public class HttpRequestHandler {
 
     // Sends a request to the server without authentication.
     // payload is only necessary for a POST/PUT request, otherwise leave an empty string.
-    public CompletableFuture<HttpResponse> request(RequestType requestType, String path, String payload) {
+    public CompletableFuture<Void> request
+    (RequestType requestType, String path, String payload, ResponseHandler<Void> handler) {
         return CompletableFuture.supplyAsync(SupplierUtils.wrap(() -> {
             HttpRequestBase request = generateRequest(requestType, path, payload);
 
-            return client.execute(request);
+            return client.execute(request, handler);
         }));
     }
 
     // Sends a request with authentication.
     // payload is only necessary for a POST/PUT request, otherwise leave an empty string.
-    public CompletableFuture<HttpResponse> requestWithAuth(RequestType requestType, String path, String payload) {
+    public CompletableFuture<Void> requestWithAuth
+    (RequestType requestType, String path, String payload, ResponseHandler<Void> handler) {
         return CompletableFuture.supplyAsync(SupplierUtils.wrap(() -> {
             HttpRequestBase request = generateRequest(requestType, path, payload);
 
-            return processAuthRequest(request);
+            processAuthRequest(request, handler);
+            return null;
         }));
     }
 
     // Sends a multipart-form POST request to upload the given file to path
-    public CompletableFuture<HttpResponse> uploadFileAuth(String path, File file) {
+    public CompletableFuture<Void> uploadFileAuth(String path, File file, ResponseHandler<Void> handler) {
         return CompletableFuture.supplyAsync(SupplierUtils.wrap(() -> {
             MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
 
@@ -94,7 +94,8 @@ public class HttpRequestHandler {
             HttpPost post = new HttpPost(baseUrl + path);
             post.setEntity(entity);
 
-            return processAuthRequest(post);
+            processAuthRequest(post, handler);
+            return null;
         }));
     }
 
@@ -103,39 +104,45 @@ public class HttpRequestHandler {
     }
 
     public String getResponseBody(HttpResponse response) throws IOException {
-        return EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        response.getEntity().writeTo(os);
+        return os.toString();
     }
 
     // Sends the given request with auth. If unauthorized then retry after refreshing tokens.
-    private HttpResponse processAuthRequest(HttpRequestBase request) {
+    private void processAuthRequest(HttpRequestBase request, ResponseHandler<Void> handler) throws IOException {
         request.addHeader("Authorization", "Bearer " + accessToken);
 
-        try (final CloseableHttpResponse response = client.execute(request)) {
-            if (response.getStatusLine().getStatusCode() == 401) {
-                // If unauthorized then attempt to refresh tokens
-                refreshTokens();
-                return client.execute(request);
-            } else {
-                // Otherwise return the response (even if response is unsuccessful)
-                return response;
+        boolean authorized = client.execute(request, response -> {
+            if (response.getStatusLine().getStatusCode() == 200) {
+                handler.handleResponse(response);
+                return true;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+
+            return false;
+        });
+
+        if (!authorized) {
+            // If unauthorized then attempt to refresh tokens
+            refreshTokens();
+            client.execute(request, handler);
         }
     }
 
     // Sends a request to refresh the access and refresh tokens.
-    private void refreshTokens() throws Exception {
+    private void refreshTokens() {
         System.out.println("Refreshing tokens");
-        HttpResponse response =  request(RequestType.POST, "/refresh-token",
-                                    String.format("{ \"refreshToken\": \"%s\" }", refreshToken))
-                                    .get();
 
-        JsonObject resBodyJson = getResponseBodyJson(response);
+        request(RequestType.POST, "/refresh-token",
+            String.format("{ \"refreshToken\": \"%s\" }", refreshToken),
+            response -> {
+                JsonObject resBodyJson = getResponseBodyJson(response);
 
-        setAccessToken(resBodyJson.get("accessToken").getAsString());
-        setRefreshToken(resBodyJson.get("refreshToken").getAsString());
+                setAccessToken(resBodyJson.get("accessToken").getAsString());
+                setRefreshToken(resBodyJson.get("refreshToken").getAsString());
+
+                return null;
+            });
     }
 
     // Generates a request from the given request type along with the content (for POST requests only).

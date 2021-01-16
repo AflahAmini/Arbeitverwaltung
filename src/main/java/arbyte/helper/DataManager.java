@@ -44,13 +44,14 @@ public class DataManager {
     private void fetchCalendar() {
         if (online) {
             // Fetch the user's json from the server then save it to calendar.json
-            reqHandler.requestWithAuth(RequestType.GET, "/calendar/" + currentUser.id, "")
-            .thenAccept(response -> {
+            reqHandler.requestWithAuth(RequestType.GET, "/calendar/" + currentUser.id, "",
+            response -> {
                 try {
                     // Parse the calendar json into the calendar object
                     if (response.getStatusLine().getStatusCode() == 200) {
                         String responseString = reqHandler.getResponseBody(response);
                         calendar = Calendar.fromJson(responseString);
+                        saveCalendar();
                     }
                     // Throw an exception if the status code is other than 200 and 404
                     else {
@@ -66,6 +67,8 @@ public class DataManager {
                     System.out.println("fetchCalendar : Something went wrong!");
                     e.printStackTrace();
                 }
+
+                return null;
             }).exceptionally(e -> {
                 System.out.println(connectionFailedMessage("fetchCalendar"));
 
@@ -123,12 +126,13 @@ public class DataManager {
         System.out.println("Uploading calendar...");
 
         // Sends an upload request to the server
-        reqHandler.uploadFileAuth("/calendar/" + currentUser.id, f)
-        .thenAccept(response -> {
+        reqHandler.uploadFileAuth("/calendar/" + currentUser.id, f,
+        response -> {
             if (response.getStatusLine().getStatusCode() != 200)
                 System.out.println("Upload failed");
-        })
-        .exceptionally(e -> {
+
+            return null;
+        }).exceptionally(e -> {
             System.out.println(connectionFailedMessage("uploadCalendar"));
 
             online = false;
