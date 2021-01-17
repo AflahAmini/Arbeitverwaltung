@@ -1,10 +1,14 @@
 package arbyte.models;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Month {
+    @Expose
     private final String monthYear;
+    @Expose
     private final List<CalEvent> events;
 
     public String getMonthYear() { return monthYear; }

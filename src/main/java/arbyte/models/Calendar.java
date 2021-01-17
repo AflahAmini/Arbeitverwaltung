@@ -3,6 +3,7 @@ package arbyte.models;
 import arbyte.helper.ZonedDateTimeConverter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.List;
 
 public class Calendar {
     // Hash map maps the monthYear string to the corresponding Month object
+    @Expose
     private final HashMap<String, Month> monthHashMap;
     private Runnable onChangedCallback;
 
@@ -91,13 +93,16 @@ public class Calendar {
     public String toJson(){
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting()
+                .excludeFieldsWithoutExposeAnnotation()
                 .registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeConverter())
                 .create();
         return gson.toJson(this);
     }
 
     public static Calendar fromJson(String json){
-        Gson gson = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeConverter())
+        Gson gson = new GsonBuilder()
+                .excludeFieldsWithoutExposeAnnotation()
+                .registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeConverter())
                 .create();
         return gson.fromJson(json, Calendar.class);
     }
