@@ -3,7 +3,6 @@ package arbyte.helper;
 import arbyte.controllers.MainController;
 import arbyte.models.Session;
 import javafx.application.Platform;
-import org.jnativehook.GlobalScreen;
 import org.jnativehook.mouse.NativeMouseEvent;
 import org.jnativehook.mouse.NativeMouseMotionListener;
 
@@ -11,48 +10,67 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class SessionMouseListener implements NativeMouseMotionListener {
-    private ScheduledFuture<?> timerHandle;
-    private final Session session = MainController.getInstance().getCurSession();
     private final long countdownTime = 5;
 
-    public SessionMouseListener(){
-        // Disables the default logger
-        Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
-        logger.setLevel(Level.OFF);
+    private Session session;
+    private ScheduledFuture<?> timerHandle;
 
-        logger.setUseParentHandlers(false);
+    public SessionMouseListener(){
+        // Starts the timer upon initialization, ensures the timer handle exists
+        // even when mouse isn't moved from the start
+        startTimer();
+
+        fetchSession();
     }
 
     @Override
     public void nativeMouseMoved(NativeMouseEvent nativeMouseEvent) {
+        handleMouseMovement();
+    }
+
+    @Override
+    public void nativeMouseDragged(NativeMouseEvent nativeMouseEvent) {
+        handleMouseMovement();
+    }
+
+    private void handleMouseMovement() {
+        if (session == null) return;
+
         // Interrupt the timer handle once the mouse starts moving
         if(timerHandle != null)
             timerHandle.cancel(false);
 
         if(session.isPaused()){
             session.toggleSessionPause();
+            System.out.println("Session is resumed");
+
             Platform.runLater(() -> MainController.getInstance().setStatus(true));
         } else
             startTimer();
     }
 
-    @Override
-    public void nativeMouseDragged(NativeMouseEvent nativeMouseEvent) { }
-
     // Starts a timer that expires after countdownTime seconds.
     // Upon expiring the timer pauses the session.
     private void startTimer(){
-        final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
-        timerHandle = scheduler.schedule(() -> {
+        timerHandle = executorService.schedule(() -> {
             session.toggleSessionPause();
             System.out.println("Session is paused");
             Platform.runLater(() -> MainController.getInstance().setStatus(false));
 
-        },  countdownTime, TimeUnit.SECONDS);
+        }, countdownTime, TimeUnit.SECONDS);
+    }
+
+    private void fetchSession() {
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.scheduleAtFixedRate(() -> {
+            session = DataManager.getInstance().getSession();
+
+            if (session != null)
+                executorService.shutdown();
+        }, 0, 100, TimeUnit.MILLISECONDS);
     }
 }

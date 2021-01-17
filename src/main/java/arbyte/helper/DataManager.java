@@ -14,6 +14,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class DataManager {
     //#region Singleton stuff
@@ -52,9 +55,13 @@ public class DataManager {
         this.online = online;
 
         fetchCalendar();
+
+        createSession();
+        startSessionSyncSchedule();
     }
 
     public Calendar getCalendar() { return calendar; }
+    public Session getSession() { return session; }
 
     // Fetches the calendar json from the server if online, otherwise parses
     // from the local json file into the calendar object.
@@ -69,16 +76,19 @@ public class DataManager {
                         String responseString = reqHandler.getResponseBody(response);
                         calendar = Calendar.fromJson(responseString);
                         saveCalendar();
-                    }
-                    // Throw an exception if the status code is other than 200 and 404
-                    else {
-                        calendar = new Calendar();
-                        saveCalendar();
-                        uploadCalendar();
 
-                        if (response.getStatusLine().getStatusCode() != 404)
-                            throw new Exception(response.getStatusLine().getReasonPhrase());
+                        return null;
                     }
+
+                    // Throw an exception but don't upload if the status code
+                    // is other than 200 and 404
+                    calendar = new Calendar();
+                    saveCalendar();
+
+                    if (response.getStatusLine().getStatusCode() == 404)
+                        uploadCalendar();
+                    else
+                        throw new Exception(response.getStatusLine().getReasonPhrase());
 
                 } catch (Exception e) {
                     System.out.println("fetchCalendar : Something went wrong!");
@@ -96,7 +106,12 @@ public class DataManager {
                 online = false;
                 fetchCalendar();
                 return null;
-            });
+            }).whenComplete(((u, t) -> {
+                calendar.setOnChangedCallback(() -> {
+                    saveCalendar();
+                    uploadCalendar();
+                });
+            }));
         } else {
             try {
                 // Read from file on calendarPath into a StringBuilder
@@ -128,6 +143,8 @@ public class DataManager {
 
                 // Set calendar as new calendar by default
                 calendar = new Calendar();
+            } finally {
+                calendar.setOnChangedCallback(this::saveCalendar);
             }
         }
     }
@@ -252,6 +269,12 @@ public class DataManager {
             online = false;
             return null;
         });
+    }
+
+    private void startSessionSyncSchedule() {
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.scheduleAtFixedRate(this::updateSession,
+                5, 5, TimeUnit.MINUTES);
     }
 
     private void flashMessage(String message, boolean isError) {

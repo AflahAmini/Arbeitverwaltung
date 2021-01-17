@@ -19,6 +19,9 @@ import java.io.IOException;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 public class MainController {
     private static MainController mainController;
@@ -41,8 +44,6 @@ public class MainController {
     Label labelStatus;
     //#endregion
 
-    private Session curSession;
-
     private final DataManager dataManager = DataManager.getInstance();
 
     @FXML
@@ -51,7 +52,6 @@ public class MainController {
     @FXML
     public void initialize() {
         mainController = this;
-        curSession = new Session();
         loadThenChangeView("fxml/CalendarView.fxml",
                 () -> dataManager.getCalendar() != null,
                 CalendarViewController::initialize);
@@ -60,6 +60,11 @@ public class MainController {
         setStatus(true);
 
         labelEmail.setText(LoginController.getInstance().getEmail());
+
+        // Disables the default logger for GlobalScreen
+        LogManager.getLogManager().reset();
+        Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
+        logger.setLevel(Level.OFF);
 
         // Registers SessionMouseListener to manage session pauses upon inactivity
         try {
@@ -70,10 +75,6 @@ public class MainController {
         catch(Exception e){
             e.printStackTrace();
         }
-    }
-
-    public Session getCurSession() {
-        return curSession;
     }
 
     public void changeView(String fxmlPath){
@@ -179,7 +180,10 @@ public class MainController {
 
     // Returns the session duration in the format hh:mm
     private String getSessionDuration() {
-        long sessionSeconds = curSession.getActiveDuration().getSeconds();
+        Session s = dataManager.getSession();
+
+        if (s == null) return "--:--";
+        long sessionSeconds = s.getActiveDuration().getSeconds();
         return String.format("%02d:%02d", sessionSeconds / 3600, sessionSeconds / 60);
     }
 }
