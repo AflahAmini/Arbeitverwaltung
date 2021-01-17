@@ -1,5 +1,6 @@
 package arbyte.controllers;
 
+import arbyte.application.ExecutorServiceManager;
 import arbyte.helper.DataManager;
 import arbyte.helper.SessionMouseListener;
 import arbyte.helper.SceneHelper;
@@ -101,6 +102,7 @@ public class MainController {
     // the view is switched to the desired view while running the callback for the controller.
     public <T> void loadThenChangeView(String fxmlPath, Supplier<Boolean> validator, Consumer<T> controllerCallback) {
         ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(2);
+        ExecutorServiceManager.register(scheduledThreadPool);
 
         ScheduledFuture<?> loadViewHandle = scheduledThreadPool.schedule(() ->
                         Platform.runLater(() -> changeView("fxml/LoadingView.fxml")),
@@ -143,7 +145,10 @@ public class MainController {
                         ft.setToValue(0);
 
                         // then is deleted after the fade out ends
-                        ft.setOnFinished(actionEvent -> containerFlash.getChildren().remove(0));
+                        ft.setOnFinished(actionEvent -> {
+                            containerFlash.getChildren().remove(0);
+                            service.shutdown();
+                        });
                         ft.play();
                     }),
                     2, TimeUnit.SECONDS);
@@ -161,6 +166,7 @@ public class MainController {
         labelSession.setText("Duration - 00:00");
 
         ScheduledExecutorService sessionService = Executors.newSingleThreadScheduledExecutor();
+        ExecutorServiceManager.register(sessionService);
         sessionService.scheduleAtFixedRate(() -> {
             String sessionMessage = "Duration - " + getSessionDuration();
             Platform.runLater(() -> labelSession.setText(sessionMessage));

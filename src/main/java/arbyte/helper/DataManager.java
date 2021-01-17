@@ -1,5 +1,6 @@
 package arbyte.helper;
 
+import arbyte.application.ExecutorServiceManager;
 import arbyte.controllers.MainController;
 import arbyte.models.CalEvent;
 import arbyte.models.Calendar;
@@ -273,6 +274,8 @@ public class DataManager {
 
     private void startSessionSyncSchedule() {
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        ExecutorServiceManager.register(executorService);
+
         executorService.scheduleAtFixedRate(this::updateSession,
                 5, 5, TimeUnit.MINUTES);
     }

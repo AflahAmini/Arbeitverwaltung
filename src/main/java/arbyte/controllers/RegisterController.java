@@ -119,6 +119,9 @@ public class RegisterController {
     private void setError(String msg){
         error.setText(msg);
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.schedule(() -> error.setText(""), 3, TimeUnit.SECONDS);
+        executorService.schedule(() -> {
+            error.setText("");
+            executorService.shutdown();
+        }, 3, TimeUnit.SECONDS);
     }
 }

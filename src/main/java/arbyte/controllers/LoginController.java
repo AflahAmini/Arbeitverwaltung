@@ -1,5 +1,6 @@
 package arbyte.controllers;
 
+import arbyte.application.ExecutorServiceManager;
 import arbyte.helper.DataManager;
 import arbyte.networking.HttpRequestHandler;
 import arbyte.networking.RequestType;
@@ -139,6 +140,9 @@ public class LoginController {
     private void setError(String msg){
         error.setText(msg);
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.schedule(() -> error.setText(""), 3, TimeUnit.SECONDS);
+        executorService.schedule(() -> {
+            error.setText("");
+            executorService.shutdown();
+        }, 3, TimeUnit.SECONDS);
     }
 }

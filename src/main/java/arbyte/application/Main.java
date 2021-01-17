@@ -6,6 +6,8 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
+import java.util.Set;
+
 public class Main extends Application {
     @Override
 
@@ -16,6 +18,8 @@ public class Main extends Application {
         // Makes sure the program exits properly
         Platform.setImplicitExit(true);
         primaryStage.setOnCloseRequest(windowEvent -> {
+            ExecutorServiceManager.shutdownAll();
+
             Platform.exit();
             System.exit(0);
         });
