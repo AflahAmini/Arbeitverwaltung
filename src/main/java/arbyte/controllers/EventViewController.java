@@ -53,8 +53,8 @@ public class EventViewController {
     }
 
     public void addEventButton(){
-        MainController.getInstance().changeViewAndModify("fxml/EventAdd.fxml",
-                (Consumer<AddEventController>) controller -> controller.initialize(date));
+        MainController.getInstance().changeViewAndModify("fxml/EventForm.fxml",
+                (Consumer<EventFormController>) controller -> controller.initializeAdd(date));
     }
 
     public void backButton(){
