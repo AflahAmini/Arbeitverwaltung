@@ -2,11 +2,15 @@ package arbyte.controllers;
 
 import arbyte.managers.DataManager;
 import arbyte.helper.SceneHelper;
+import arbyte.models.CalEvent;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.layout.HBox;
 
 import java.time.LocalDate;
@@ -18,11 +22,9 @@ public class EventViewController {
     @FXML
     JFXListView<HBox> listView;
     @FXML
-    JFXButton addEventButton;
+    JFXButton buttonEdit;
     @FXML
-    JFXButton editButton;
-    @FXML
-    JFXButton backButton;
+    JFXButton buttonDelete;
     @FXML
     Label labelDate;
     @FXML
@@ -30,12 +32,16 @@ public class EventViewController {
     //#endregion
 
     private LocalDate date;
+    private int selectedIndex = -1;
 
     public void initialize(LocalDate date) {
         this.date = date;
 
         labelMonth.setText(String.format("%02d", date.getMonthValue()));
         labelDate.setText(String.format("%02d", date.getDayOfMonth()));
+
+        buttonEdit.setDisable(true);
+        buttonDelete.setDisable(true);
 
         //get the Event that has same date and monthYear,then add to listView
         DataManager.getInstance().lastEventsList.forEach(calEvent -> {
@@ -50,14 +56,47 @@ public class EventViewController {
                 e.printStackTrace();
             }
         });
+
+        listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        listView.getSelectionModel().selectedIndexProperty().addListener((observableValue, before, after) -> {
+            selectedIndex = after.intValue();
+
+            if(after.intValue() > -1){
+                buttonEdit.setDisable(false);
+                buttonDelete.setDisable(false);
+            }
+            else{
+                buttonEdit.setDisable(true);
+                buttonDelete.setDisable(true);
+            }
+        });
     }
 
-    public void addEventButton(){
+    public void addEvent(){
         MainController.getInstance().changeViewAndModify("fxml/EventForm.fxml",
                 (Consumer<EventFormController>) controller -> controller.initializeAdd(date));
     }
 
-    public void backButton(){
+    public void editEvent(){
+        if(selectedIndex == -1) return;
+
+        CalEvent event = DataManager.getInstance().lastEventsList.get(selectedIndex);
+
+        MainController.getInstance().changeViewAndModify("fxml/EventForm.fxml",
+                (Consumer<EventFormController>) controller -> controller.initializeEdit(date, event));
+    }
+
+    public void deleteEvent(){
+        if(selectedIndex == -1) return;
+
+        CalEvent event = DataManager.getInstance().lastEventsList.get(selectedIndex);
+        DataManager.getInstance().getCalendar().deleteEvent(event);
+
+        DataManager.getInstance().lastEventsList.remove(selectedIndex);
+        listView.getItems().remove(selectedIndex);
+    }
+
+    public void back(){
         MainController.getInstance().changeView("fxml/CalendarView.fxml");
     }
 }

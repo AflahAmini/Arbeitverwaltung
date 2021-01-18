@@ -15,6 +15,7 @@ public class Calendar {
     @Expose
     private final HashMap<String, Month> monthHashMap;
     private Runnable onChangedCallback;
+    private boolean isUpdate = false;
 
     public Calendar(){
         monthHashMap = new HashMap<>();
@@ -58,13 +59,15 @@ public class Calendar {
         int i = binSearchRecur(calEvent,m.getEvents(),0,m.getEvents().size() - 1);
         m.addEventAt(calEvent, i);
 
-        onChange();
+        if(!isUpdate)
+            onChange();
     }
 
     // Replaces oldEvent with newEvent.
     // If unsuccessful then the oldEvent would not be deleted,
     // and an exception would be thrown
     public void updateEvent(CalEvent oldEvent, CalEvent newEvent) throws Exception {
+        isUpdate = true;
         deleteEvent(oldEvent);
         // If add event fails then the old event should be re-added
         try {
@@ -75,6 +78,7 @@ public class Calendar {
         }
 
         onChange();
+        isUpdate = false;
     }
 
     public void deleteEvent(CalEvent calEvent){
@@ -86,7 +90,8 @@ public class Calendar {
         if(m.getEvents().size() == 0)
             monthHashMap.remove(monthYear);
 
-        onChange();
+        if(!isUpdate)
+            onChange();
     }
 
     // Json (de-)serialization methods

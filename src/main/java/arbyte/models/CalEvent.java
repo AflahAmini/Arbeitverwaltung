@@ -13,22 +13,18 @@ public class CalEvent {
     @Expose
     private final ZonedDateTime endTime;
 
-    private final boolean isValid;
-
     // Getters
     public String getName(){ return name; }
     public ZonedDateTime getStartTime() { return startTime; }
     public ZonedDateTime getEndTime() { return endTime; }
     public boolean isValid() {
-        return isValid;
+        return validate();
     }
 
     public CalEvent (String name, ZonedDateTime startTime, ZonedDateTime endTime){
         this.name = name;
         this.startTime = startTime;
         this.endTime = endTime;
-
-        this.isValid = validate();
     }
 
     private boolean validate() {

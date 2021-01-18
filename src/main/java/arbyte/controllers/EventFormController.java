@@ -10,9 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
@@ -33,6 +31,8 @@ public class EventFormController {
     //#endregion
 
     private LocalDate date;
+    private CalEvent event;
+    private boolean isEdit;
 
     @FXML
     void initialize() {
@@ -42,6 +42,7 @@ public class EventFormController {
 
     public void initializeAdd(LocalDate date){
         this.date = date;
+        isEdit = false;
 
         labelTitle.setText("Add Event");
         buttonMain.setText("Add");
@@ -49,12 +50,18 @@ public class EventFormController {
 
     public void initializeEdit(LocalDate date, CalEvent event) {
         this.date = date;
+        this.event = event;
+        isEdit = true;
 
         labelTitle.setText("Edit Event");
         buttonMain.setText("Update");
+
+        eventName.setText(event.getName());
+        eventStartTime.setValue(LocalTime.from(event.getStartTime()));
+        eventEndTime.setValue(LocalTime.from(event.getEndTime()));
     }
 
-    public void addEventButton() {
+    public void onAccept() {
         try {
             String name = eventName.getText();
             String startTime = getFullDateTime(eventStartTime);
@@ -64,19 +71,22 @@ public class EventFormController {
             ZonedDateTime eEndTime = ZonedDateTime.parse(endTime, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
             System.out.println(startTime);
 
-            CalEvent calEvent = new CalEvent(name, eStartTime, eEndTime);
-
+            CalEvent newEvent = new CalEvent(name, eStartTime, eEndTime);
             Calendar calendar = DataManager.getInstance().getCalendar();
-            calendar.addEvent(calEvent);
-            calendar.toJson();
+            if(!isEdit)
+                calendar.addEvent(newEvent);
+            else
+                calendar.updateEvent(event, newEvent);
+
             MainController.getInstance().changeView("fxml/CalendarView.fxml");
         } catch (Exception e) {
+            e.printStackTrace();
             FlashMessage fm = new FlashMessage(e.getMessage(), true);
             MainController.getInstance().flash(fm);
         }
     }
 
-    public void cancelButton() {
+    public void cancel() {
         MainController.getInstance().changeViewAndModify("fxml/EventView.fxml",
                 (Consumer<EventViewController>) controller -> controller.initialize(date));
     }

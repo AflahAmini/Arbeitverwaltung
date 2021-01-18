@@ -46,12 +46,12 @@
             </GridPane>
             <HBox alignment="CENTER" prefHeight="66.0" prefWidth="600.0" spacing="10.0">
                <children>
-                  <JFXButton fx:id="buttonMain" buttonType="RAISED" onAction="#addEventButton" style="-fx-background-color: #1D3557; -fx-background-radius: 5;" text="Main" textFill="WHITE">
+                  <JFXButton fx:id="buttonMain" buttonType="RAISED" onAction="#onAccept" style="-fx-background-color: #1D3557; -fx-background-radius: 5;" text="Main" textFill="WHITE">
                      <font>
                         <Font size="17.0" />
                      </font>
                   </JFXButton>
-                  <JFXButton fx:id="cancelButton" onAction="#cancelButton" text="Cancel">
+                  <JFXButton fx:id="cancelButton" onAction="#cancel" text="Cancel">
                      <font>
                         <Font size="17.0" />
                      </font>

@@ -41,28 +41,36 @@
             <JFXListView fx:id="listView" maxHeight="-Infinity" prefHeight="500.0" />
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <JFXButton fx:id="addEventButton" buttonType="RAISED" onAction="#addEventButton" style="-fx-background-color: #1D3557;" text="Add Event" textFill="WHITE">
+                  <JFXButton buttonType="RAISED" onAction="#addEvent" style="-fx-background-color: #1D3557;" text="Add Event" textFill="WHITE">
                      <font>
                         <Font size="14.0" />
                      </font>
                      <HBox.margin>
-                        <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
+                        <Insets bottom="10.0" left="7.0" right="7.0" top="10.0" />
                      </HBox.margin>
                   </JFXButton>
-                  <JFXButton fx:id="editButton" buttonType="RAISED" layoutX="10.0" layoutY="10.0" style="-fx-background-color: #1D3557;" text="Edit" textFill="WHITE">
+                  <JFXButton fx:id="buttonEdit" buttonType="RAISED" layoutX="10.0" layoutY="10.0" onAction="#editEvent" style="-fx-background-color: #1D3557;" text="Edit" textFill="WHITE">
                      <font>
                         <Font size="14.0" />
                      </font>
                      <HBox.margin>
-                        <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
+                        <Insets bottom="10.0" left="7.0" right="7.0" top="10.0" />
                      </HBox.margin>
                   </JFXButton>
-                  <JFXButton fx:id="backButton" onAction="#backButton" text="Back" textFill="#1d3557">
+                  <JFXButton fx:id="buttonDelete" buttonType="RAISED" onAction="#deleteEvent" style="-fx-background-color: #1D3557;" text="Delete" textFill="WHITE">
                      <font>
                         <Font size="14.0" />
                      </font>
                      <HBox.margin>
-                        <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
+                        <Insets bottom="10.0" left="7.0" right="7.0" top="10.0" />
+                     </HBox.margin>
+                  </JFXButton>
+                  <JFXButton onAction="#back" text="Back" textFill="#1d3557">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets bottom="10.0" left="7.0" right="7.0" top="10.0" />
                      </HBox.margin>
                   </JFXButton>
                </children>
