@@ -1,8 +1,11 @@
 package arbyte.controllers;
 
+import arbyte.helper.DataManager;
+import arbyte.helper.SceneHelper;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 
@@ -33,6 +36,20 @@ public class EventViewController {
 
         labelMonth.setText(String.format("%02d", date.getMonthValue()));
         labelDate.setText(String.format("%02d", date.getDayOfMonth()));
+
+        //get the Event that has same date and monthYear,then add to listView
+        DataManager.getInstance().lastEventsList.forEach(calEvent -> {
+            FXMLLoader loader =  SceneHelper.getFXMLLoader("fxml/EventListElement.fxml");
+            try {
+                listView.getItems().add(loader.load());
+                EventListElementController controller = loader.getController();
+                controller.setValues(calEvent.getFormattedStartTime(), calEvent.getFormattedEndTime(),
+                        calEvent.getName());
+            }
+            catch(Exception e){
+                e.printStackTrace();
+            }
+        });
     }
 
     public void addEventButton(){

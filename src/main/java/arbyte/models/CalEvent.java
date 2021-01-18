@@ -2,10 +2,8 @@ package arbyte.models;
 
 import com.google.gson.annotations.Expose;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
-import java.util.Calendar;
+import java.time.format.DateTimeFormatter;
 
 public class CalEvent {
     @Expose
@@ -47,4 +45,13 @@ public class CalEvent {
         return String.format("%02d-%d", month, year);
     }
 
+    public String getFormattedStartTime(){
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm");
+        return startTime.format(dtf);
+    }
+
+    public String getFormattedEndTime(){
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm");
+        return endTime.format(dtf);
+    }
 }
