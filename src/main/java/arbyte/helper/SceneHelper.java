@@ -29,10 +29,6 @@ public class SceneHelper {
         SceneHelper.switchSceneResource("fxml/MainScene.fxml", 900, 600);
     }
 
-    public static void showAddEvent(){
-        SceneHelper.switchSceneResource("fxml/EventForm.fxml", 600, 400);
-    }
-
     public static Parent getParentFromFXML(String filename) {
         try {
             return FXMLLoader.load(resourceLoader.getURL(filename));

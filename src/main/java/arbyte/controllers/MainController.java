@@ -168,6 +168,17 @@ public class MainController {
         });
     }
 
+    public void showPrompt(){
+        try {
+            FXMLLoader loader = SceneHelper.getFXMLLoader("fxml/PromptOverlay.fxml");
+            Parent promptOverlay = loader.load();
+            root.getChildren().add(promptOverlay);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void setStatus(boolean isActive){
         labelStatus.setText("Status : " + (isActive ? "Active" : "Inactive") );
     }
