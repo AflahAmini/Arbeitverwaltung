@@ -2,6 +2,7 @@ package arbyte.managers;
 
 import arbyte.helper.ResourceLoader;
 import arbyte.controllers.MainController;
+import arbyte.helper.SessionMouseListener;
 import arbyte.models.CalEvent;
 import arbyte.models.Calendar;
 import arbyte.models.Session;
@@ -9,6 +10,7 @@ import arbyte.models.User;
 import arbyte.networking.HttpRequestHandler;
 import arbyte.networking.RequestType;
 import com.google.gson.JsonObject;
+import org.jnativehook.GlobalScreen;
 
 import java.io.*;
 import java.time.LocalDate;
@@ -18,6 +20,9 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 public class DataManager {
     //#region Singleton stuff
@@ -56,8 +61,8 @@ public class DataManager {
         this.online = online;
 
         fetchCalendar();
-
         createSession();
+
         startSessionSyncSchedule();
     }
 
@@ -199,6 +204,7 @@ public class DataManager {
     private void createSession() {
         if (!online) {
             session = new Session();
+            onSessionCreated();
             return;
         }
 
@@ -229,12 +235,16 @@ public class DataManager {
                 } else {
                     String error = responseBody.get("error").getAsString();
                     flashMessage(error, true);
+
+                    session = new Session();
                 }
             } catch (Exception e) {
                 System.out.println("createSession : Something went wrong!");
                 e.printStackTrace();
 
                 session = new Session();
+            } finally {
+                onSessionCreated();
             }
 
             return null;
@@ -242,6 +252,8 @@ public class DataManager {
             System.out.println(connectionFailedMessage("createSession"));
 
             online = false;
+            createSession();
+
             return null;
         });
     }
@@ -270,6 +282,23 @@ public class DataManager {
             online = false;
             return null;
         });
+    }
+
+    private void onSessionCreated() {
+        // Disables the default logger for GlobalScreen
+        LogManager.getLogManager().reset();
+        Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
+        logger.setLevel(Level.OFF);
+
+        // Registers SessionMouseListener to manage session pauses upon inactivity
+        try {
+            GlobalScreen.registerNativeHook();
+            SessionMouseListener mouse = new SessionMouseListener(session);
+            GlobalScreen.addNativeMouseMotionListener(mouse);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     private void startSessionSyncSchedule() {

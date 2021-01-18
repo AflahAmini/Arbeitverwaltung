@@ -61,21 +61,6 @@ public class MainController {
         setStatus(true);
 
         labelEmail.setText(LoginController.getInstance().getEmail());
-
-        // Disables the default logger for GlobalScreen
-        LogManager.getLogManager().reset();
-        Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
-        logger.setLevel(Level.OFF);
-
-        // Registers SessionMouseListener to manage session pauses upon inactivity
-        try {
-            GlobalScreen.registerNativeHook();
-            SessionMouseListener mouse = new SessionMouseListener();
-            GlobalScreen.addNativeMouseMotionListener(mouse);
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
     }
 
     public void changeView(String fxmlPath){

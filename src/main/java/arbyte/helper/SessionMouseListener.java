@@ -21,14 +21,14 @@ public class SessionMouseListener implements NativeMouseMotionListener {
     private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> timerHandle;
 
-    public SessionMouseListener(){
+    public SessionMouseListener(Session session){
+        this.session = session;
+
         ExecutorServiceManager.register(executorService);
 
         // Starts the timer upon initialization, ensures the timer handle exists
         // even when mouse isn't moved from the start
         startTimer();
-
-        fetchSession();
     }
 
     @Override
@@ -67,17 +67,5 @@ public class SessionMouseListener implements NativeMouseMotionListener {
             Platform.runLater(() -> MainController.getInstance().setStatus(false));
 
         }, countdownTime, TimeUnit.SECONDS);
-    }
-
-    private void fetchSession() {
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        ExecutorServiceManager.register(executorService);
-
-        executorService.scheduleAtFixedRate(() -> {
-            session = DataManager.getInstance().getSession();
-
-            if (session != null)
-                executorService.shutdown();
-        }, 0, 100, TimeUnit.MILLISECONDS);
     }
 }

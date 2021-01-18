@@ -77,7 +77,6 @@ public class RegisterController {
                             Hasher.storeCredentials(emailField.getText(), passField.getText());
 
                             Platform.runLater(() -> {
-                                user.clearPasswords();
                                 user.id = id;
                                 DataManager.getInstance().initialize(user, true);
 

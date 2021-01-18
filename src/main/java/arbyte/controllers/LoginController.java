@@ -81,7 +81,6 @@ public class LoginController {
                                 SceneHelper.showMainPage();
                                 MainController.getInstance().flash("Login successful!", false);
 
-                                user.clearPasswords();
                                 user.id = id;
                                 DataManager.getInstance().initialize(user, true);
                             });
@@ -103,7 +102,6 @@ public class LoginController {
                         MainController.getInstance().flash("Logged in using last known credentials."
                                 , false);
 
-                        user.clearPasswords();
                         DataManager.getInstance().initialize(user, false);
                     });
                 }
