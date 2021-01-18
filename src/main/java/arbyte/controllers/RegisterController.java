@@ -1,6 +1,7 @@
 package arbyte.controllers;
 
 import arbyte.managers.DataManager;
+import arbyte.models.FlashMessage;
 import arbyte.networking.HttpRequestHandler;
 import arbyte.networking.RequestType;
 import arbyte.helper.Hasher;
@@ -82,7 +83,8 @@ public class RegisterController {
 
                                 // Switch to main view with a flash message
                                 SceneHelper.showMainPage();
-                                MainController.getInstance().flash("Register successful!", false);
+                                FlashMessage fm = new FlashMessage("Register successful!", false);
+                                MainController.getInstance().flash(fm);
                             });
                         } else {
                             String message = responseBody.get("error").getAsString();

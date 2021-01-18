@@ -1,6 +1,7 @@
 package arbyte.controllers;
 
 import arbyte.managers.DataManager;
+import arbyte.models.FlashMessage;
 import arbyte.networking.HttpRequestHandler;
 import arbyte.networking.RequestType;
 import arbyte.helper.SceneHelper;
@@ -18,8 +19,6 @@ import java.io.IOException;
 import java.util.concurrent.*;
 
 public class LoginController {
-    private static LoginController loginController;
-
     //#region FXML variables
     @FXML
     Text error;
@@ -41,7 +40,6 @@ public class LoginController {
     // Attempts a user login using the inputted credentials. If server is unreachable
     // then it attempts an offline login using last known credentials
     public void buttonLogin(){
-        loginController = this;
         User user = new User(emailField.getText(), passField.getText(), passField.getText());
 
         if (user.isValid()) {
@@ -77,12 +75,13 @@ public class LoginController {
                             Hasher.storeCredentials(emailField.getText(), passField.getText());
 
                             Platform.runLater(() -> {
-                                // Switch to main view with a flash message
-                                SceneHelper.showMainPage();
-                                MainController.getInstance().flash("Login successful!", false);
-
                                 user.id = id;
                                 DataManager.getInstance().initialize(user, true);
+
+                                // Switch to main view with a flash message
+                                SceneHelper.showMainPage();
+                                FlashMessage fm = new FlashMessage("Login successful!", false);
+                                MainController.getInstance().flash(fm);
                             });
                         } else {
                             String message = responseBody.get("error").getAsString();
@@ -98,11 +97,11 @@ public class LoginController {
                 // If credentials match last known credentials, then log into app in offline mode
                 else if(Hasher.compareLastCredentials(emailField.getText(), passField.getText())){
                     Platform.runLater(() -> {
-                        SceneHelper.showMainPage();
-                        MainController.getInstance().flash("Logged in using last known credentials."
-                                , false);
-
                         DataManager.getInstance().initialize(user, false);
+
+                        SceneHelper.showMainPage();
+                        FlashMessage fm = new FlashMessage("Offline mode enabled", false);
+                        MainController.getInstance().flash(fm);
                     });
                 }
                 // Otherwise show the usual connection failed error
@@ -125,14 +124,6 @@ public class LoginController {
 
     public void switchToRegister(){
         SceneHelper.showRegisterPage();
-    }
-
-    public static LoginController getInstance(){
-        return loginController;
-    }
-
-    public String getEmail(){
-        return emailField.getText();
     }
 
     private void setError(String msg){

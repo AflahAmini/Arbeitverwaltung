@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 public class SessionMouseListener implements NativeMouseMotionListener {
     private final long countdownTime = 60;
 
-    private Session session;
+    private final Session session;
 
     private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> timerHandle;

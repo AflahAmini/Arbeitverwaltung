@@ -16,6 +16,8 @@ public class User {
         this.passwordConfirmation = passwordConfirmation;
     }
 
+    public String getEmail() { return email; }
+
     public boolean isValid(){
         return !(email.isBlank() || password.isBlank() || passwordConfirmation.isBlank()) ;
     }

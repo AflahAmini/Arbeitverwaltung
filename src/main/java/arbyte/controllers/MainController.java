@@ -2,8 +2,8 @@ package arbyte.controllers;
 
 import arbyte.managers.ExecutorServiceManager;
 import arbyte.managers.DataManager;
-import arbyte.helper.SessionMouseListener;
 import arbyte.helper.SceneHelper;
+import arbyte.models.FlashMessage;
 import arbyte.models.Session;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
@@ -12,17 +12,17 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-import org.jnativehook.GlobalScreen;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 public class MainController {
     private static MainController mainController;
@@ -30,11 +30,18 @@ public class MainController {
         return mainController;
     }
 
+    private static final List<FlashMessage> pendingMessages = new ArrayList<>();
+    public static void addToPendingMessages(FlashMessage message) {
+        pendingMessages.add(message);
+    }
+
     // Duration in seconds how long the program should wait
     // before the loading screen shows
     private static final int waitBeforeLoadDuration = 2;
 
     //#region FXML variables
+    @FXML
+    StackPane root;
     @FXML
     AnchorPane mainView;
     @FXML
@@ -53,14 +60,20 @@ public class MainController {
     @FXML
     public void initialize() {
         mainController = this;
+
+        StringBuilder emailBuffer = new StringBuilder(dataManager.getCurrentUser().getEmail());
+        int atIndex = emailBuffer.indexOf("@");
+        String email = emailBuffer.insert(atIndex, " ").toString();
+
+        labelEmail.setText(email);
+
         loadThenChangeView("fxml/CalendarView.fxml",
                 () -> dataManager.getCalendar() != null,
                 CalendarViewController::initialize);
 
+        clearPendingMessages();
         startSessionUpdateSchedule();
         setStatus(true);
-
-        labelEmail.setText(LoginController.getInstance().getEmail());
     }
 
     public void changeView(String fxmlPath){
@@ -86,6 +99,8 @@ public class MainController {
     // and another periodically runs the validator supplier. If the validator returns true, then
     // the view is switched to the desired view while running the callback for the controller.
     public <T> void loadThenChangeView(String fxmlPath, Supplier<Boolean> validator, Consumer<T> controllerCallback) {
+        Pane p = new Pane();
+        root.getChildren().add(p);
         ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(2);
         ExecutorServiceManager.register(scheduledThreadPool);
 
@@ -95,7 +110,10 @@ public class MainController {
 
         scheduledThreadPool.scheduleAtFixedRate(() -> {
             if (validator.get()) {
-                Platform.runLater(() -> changeViewAndModify(fxmlPath, controllerCallback));
+                Platform.runLater(() -> {
+                    changeViewAndModify(fxmlPath, controllerCallback);
+                    root.getChildren().remove(p);
+                });
 
                 loadViewHandle.cancel(false);
                 scheduledThreadPool.shutdown();
@@ -104,12 +122,12 @@ public class MainController {
     }
 
     // Shows a flash message on main view
-    public void flash(String message, boolean isError) {
+    public void flash(FlashMessage flashMessage) {
         Platform.runLater( () -> {
         try {
             FXMLLoader loader;
 
-            if (isError) {
+            if (flashMessage.isError()) {
                 loader = SceneHelper.getFXMLLoader("fxml/FlashError.fxml");
             } else {
                 loader = SceneHelper.getFXMLLoader("fxml/FlashInfo.fxml");
@@ -118,7 +136,7 @@ public class MainController {
             Parent flashWindow = loader.load();
             containerFlash.getChildren().add(flashWindow);
             FlashController controller = loader.getController();
-            controller.setMessage(message);
+            controller.setMessage(flashMessage.getMessage());
 
             ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
             service.schedule(
@@ -176,5 +194,13 @@ public class MainController {
         if (s == null) return "--:--";
         long sessionSeconds = s.getActiveDuration().getSeconds();
         return String.format("%02d:%02d", sessionSeconds / 3600, sessionSeconds / 60);
+    }
+
+    private void clearPendingMessages() {
+        for (FlashMessage fm : pendingMessages) {
+            flash(fm);
+        }
+
+        pendingMessages.clear();
     }
 }

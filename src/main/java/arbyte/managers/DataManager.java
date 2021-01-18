@@ -3,10 +3,7 @@ package arbyte.managers;
 import arbyte.helper.ResourceLoader;
 import arbyte.controllers.MainController;
 import arbyte.helper.SessionMouseListener;
-import arbyte.models.CalEvent;
-import arbyte.models.Calendar;
-import arbyte.models.Session;
-import arbyte.models.User;
+import arbyte.models.*;
 import arbyte.networking.HttpRequestHandler;
 import arbyte.networking.RequestType;
 import com.google.gson.JsonObject;
@@ -66,6 +63,7 @@ public class DataManager {
         startSessionSyncSchedule();
     }
 
+    public User getCurrentUser() { return currentUser; }
     public Calendar getCalendar() { return calendar; }
     public Session getSession() { return session; }
 
@@ -310,7 +308,13 @@ public class DataManager {
     }
 
     private void flashMessage(String message, boolean isError) {
-        MainController.getInstance().flash(message, isError);
+        FlashMessage fm = new FlashMessage(message, isError);
+        if (MainController.getInstance() == null) {
+            MainController.addToPendingMessages(fm);
+            return;
+        }
+
+        MainController.getInstance().flash(fm);
     }
 
     private String connectionFailedMessage(String context) {
