@@ -55,7 +55,7 @@
                            <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
                         </VBox.margin>
                   </JFXButton>
-                  <JFXButton layoutX="64.0" layoutY="169.0" text="Calendar" textFill="WHITE">
+                  <JFXButton layoutX="64.0" layoutY="169.0" onAction="#switchToCalendar" text="Calendar" textFill="WHITE">
                      <font>
                         <Font size="14.0" />
                      </font>
@@ -63,7 +63,7 @@
                            <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
                         </VBox.margin>
                   </JFXButton>
-                  <JFXButton layoutX="64.0" layoutY="267.0" text="Weekly Report" textFill="WHITE">
+                  <JFXButton layoutX="64.0" layoutY="267.0" onAction="#switchToWeeklyReport" text="Weekly Report" textFill="WHITE">
                      <font>
                         <Font size="14.0" />
                      </font>

@@ -67,13 +67,21 @@ public class MainController {
 
         labelEmail.setText(email);
 
-        loadThenChangeView("fxml/CalendarView.fxml",
-                () -> dataManager.getCalendar() != null,
-                CalendarViewController::initialize);
-
         clearPendingMessages();
         startSessionUpdateSchedule();
         setStatus(true);
+
+        switchToWeeklyReport();
+    }
+
+    public void switchToCalendar() {
+        loadThenChangeView("fxml/CalendarView.fxml",
+                () -> dataManager.getCalendar() != null,
+                CalendarViewController::initialize);
+    }
+
+    public void switchToWeeklyReport() {
+        changeView("fxml/WeeklyReport.fxml");
     }
 
     public void changeView(String fxmlPath){
