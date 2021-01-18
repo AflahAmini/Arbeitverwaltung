@@ -1,6 +1,6 @@
 package arbyte.controllers;
 
-import arbyte.helper.DataManager;
+import arbyte.managers.DataManager;
 import arbyte.helper.SceneHelper;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
