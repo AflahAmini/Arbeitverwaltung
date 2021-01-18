@@ -1,12 +1,11 @@
 package arbyte.application;
 
 import arbyte.helper.SceneHelper;
+import arbyte.managers.ExecutorServiceManager;
 import javafx.application.Application;
 
 import javafx.application.Platform;
 import javafx.stage.Stage;
-
-import java.util.Set;
 
 public class Main extends Application {
     @Override

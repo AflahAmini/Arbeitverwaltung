@@ -1,6 +1,7 @@
 package arbyte.helper;
 
-import arbyte.application.ExecutorServiceManager;
+import arbyte.managers.DataManager;
+import arbyte.managers.ExecutorServiceManager;
 import arbyte.controllers.MainController;
 import arbyte.models.Session;
 import javafx.application.Platform;
@@ -13,14 +14,16 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class SessionMouseListener implements NativeMouseMotionListener {
-    private final long countdownTime = 5;
+    private final long countdownTime = 60;
 
     private Session session;
 
-    private ScheduledExecutorService executorService;
+    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> timerHandle;
 
     public SessionMouseListener(){
+        ExecutorServiceManager.register(executorService);
+
         // Starts the timer upon initialization, ensures the timer handle exists
         // even when mouse isn't moved from the start
         startTimer();
@@ -51,7 +54,6 @@ public class SessionMouseListener implements NativeMouseMotionListener {
 
             Platform.runLater(() -> MainController.getInstance().setStatus(true));
         } else {
-            executorService.shutdown();
             startTimer();
         }
     }
@@ -59,8 +61,6 @@ public class SessionMouseListener implements NativeMouseMotionListener {
     // Starts a timer that expires after countdownTime seconds.
     // Upon expiring the timer pauses the session.
     private void startTimer(){
-        executorService = Executors.newSingleThreadScheduledExecutor();
-
         timerHandle = executorService.schedule(() -> {
             session.toggleSessionPause();
             System.out.println("Session is paused");

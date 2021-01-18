@@ -1,7 +1,6 @@
 package arbyte.controllers;
 
-import arbyte.application.ExecutorServiceManager;
-import arbyte.helper.DataManager;
+import arbyte.managers.DataManager;
 import arbyte.networking.HttpRequestHandler;
 import arbyte.networking.RequestType;
 import arbyte.helper.SceneHelper;
@@ -78,13 +77,13 @@ public class LoginController {
                             Hasher.storeCredentials(emailField.getText(), passField.getText());
 
                             Platform.runLater(() -> {
-                                user.clearPasswords();
-                                user.id = id;
-                                DataManager.getInstance().initialize(user, true);
-
                                 // Switch to main view with a flash message
                                 SceneHelper.showMainPage();
                                 MainController.getInstance().flash("Login successful!", false);
+
+                                user.clearPasswords();
+                                user.id = id;
+                                DataManager.getInstance().initialize(user, true);
                             });
                         } else {
                             String message = responseBody.get("error").getAsString();
@@ -100,11 +99,12 @@ public class LoginController {
                 // If credentials match last known credentials, then log into app in offline mode
                 else if(Hasher.compareLastCredentials(emailField.getText(), passField.getText())){
                     Platform.runLater(() -> {
+                        SceneHelper.showMainPage();
+                        MainController.getInstance().flash("Logged in using last known credentials."
+                                , false);
+
                         user.clearPasswords();
                         DataManager.getInstance().initialize(user, false);
-
-                        SceneHelper.showMainPage();
-                        MainController.getInstance().flash("Logged in using last known credentials.", false);
                     });
                 }
                 // Otherwise show the usual connection failed error

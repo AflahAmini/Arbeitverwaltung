@@ -1,7 +1,7 @@
 package arbyte.controllers;
 
-import arbyte.application.ExecutorServiceManager;
-import arbyte.helper.DataManager;
+import arbyte.managers.ExecutorServiceManager;
+import arbyte.managers.DataManager;
 import arbyte.helper.SessionMouseListener;
 import arbyte.helper.SceneHelper;
 import arbyte.models.Session;
@@ -109,8 +109,6 @@ public class MainController {
                 waitBeforeLoadDuration, TimeUnit.SECONDS);
 
         scheduledThreadPool.scheduleAtFixedRate(() -> {
-            System.out.println("Check");
-
             if (validator.get()) {
                 Platform.runLater(() -> changeViewAndModify(fxmlPath, controllerCallback));
 
@@ -122,6 +120,7 @@ public class MainController {
 
     // Shows a flash message on main view
     public void flash(String message, boolean isError) {
+        Platform.runLater( () -> {
         try {
             FXMLLoader loader;
 
@@ -155,6 +154,7 @@ public class MainController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        });
     }
 
     public void setStatus(boolean isActive){

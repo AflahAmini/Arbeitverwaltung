@@ -1,6 +1,6 @@
 package arbyte.controllers;
 
-import arbyte.helper.DataManager;
+import arbyte.managers.DataManager;
 import arbyte.models.CalEvent;
 import arbyte.models.Calendar;
 import com.jfoenix.controls.JFXButton;

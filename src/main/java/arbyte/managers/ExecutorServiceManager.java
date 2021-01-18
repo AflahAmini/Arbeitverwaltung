@@ -1,4 +1,4 @@
-package arbyte.application;
+package arbyte.managers;
 
 import java.util.ArrayList;
 import java.util.List;

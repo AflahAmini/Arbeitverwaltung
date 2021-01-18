@@ -1,6 +1,6 @@
 package arbyte.controllers;
 
-import arbyte.helper.DataManager;
+import arbyte.managers.DataManager;
 import arbyte.networking.HttpRequestHandler;
 import arbyte.networking.RequestType;
 import arbyte.helper.Hasher;

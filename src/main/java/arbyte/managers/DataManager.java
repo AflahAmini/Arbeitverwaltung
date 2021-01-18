@@ -1,6 +1,6 @@
-package arbyte.helper;
+package arbyte.managers;
 
-import arbyte.application.ExecutorServiceManager;
+import arbyte.helper.ResourceLoader;
 import arbyte.controllers.MainController;
 import arbyte.models.CalEvent;
 import arbyte.models.Calendar;
@@ -246,7 +246,7 @@ public class DataManager {
         });
     }
 
-    // Sends a PUT request to /sessions with the session object update the corresponding session.
+    // Sends a PUT request to /sessions with the session object to update the corresponding session.
     private void updateSession() {
         if (!online || session == null)
             return;
