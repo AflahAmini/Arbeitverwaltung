@@ -114,20 +114,17 @@ public class HttpRequestHandler {
     private void processAuthRequest(HttpRequestBase request, ResponseHandler<Void> handler) throws IOException {
         request.addHeader("Authorization", "Bearer " + accessToken);
 
-        boolean authorized = client.execute(request, response -> {
+        client.execute(request, response -> {
             if (response.getStatusLine().getStatusCode() == 200) {
                 handler.handleResponse(response);
-                return true;
+                return null;
             }
 
-            return false;
-        });
-
-        if (!authorized) {
             // If unauthorized then attempt to refresh tokens
             refreshTokens();
             client.execute(request, handler);
-        }
+            return null;
+        });
     }
 
     // Sends a request to refresh the access and refresh tokens.

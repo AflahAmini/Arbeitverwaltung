@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 public class Session {
     private Instant lastActiveInstant;
@@ -61,7 +60,7 @@ public class Session {
     public String toJson() {
         LocalDate date = LocalDate.from(lastActiveInstant);
 
-        return String.format("| {\"date\": \"%s\", \"activeDuration\": %d, \"inactiveDuration\": %d }",
+        return String.format("{ \"date\": \"%s\", \"activeDuration\": %d, \"inactiveDuration\": %d }",
                 date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                 totalActiveDuration.getSeconds(),
                 totalPausedDuration.getSeconds());

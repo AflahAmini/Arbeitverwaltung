@@ -3,6 +3,7 @@ package arbyte.models;
 import arbyte.helper.ZonedDateTimeConverter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -11,10 +12,16 @@ import java.util.List;
 
 public class Calendar {
     // Hash map maps the monthYear string to the corresponding Month object
-    public HashMap<String, Month> monthHashMap;
+    @Expose
+    private final HashMap<String, Month> monthHashMap;
+    private Runnable onChangedCallback;
 
     public Calendar(){
         monthHashMap = new HashMap<>();
+    }
+
+    public void setOnChangedCallback(Runnable callback) {
+        this.onChangedCallback = callback;
     }
 
     // Should only be used in testing
@@ -26,9 +33,8 @@ public class Calendar {
         Month m = monthHashMap.get(monthYear);
 
         // If month does not exist, then there are no events in that month
-        if (m == null) {
+        if (m == null)
             return new ArrayList<>();
-        }
 
         return m.getEvents();
     }
@@ -36,12 +42,10 @@ public class Calendar {
     // Adds the event to the corresponding month object.
     // Throws an error if the event is invalid or the event overlaps other events of that month
     public void addEvent(CalEvent calEvent) throws Exception {
-        if(!calEvent.isValid()) {
+        if(!calEvent.isValid())
             throw new Exception("Event is invalid!");
-        }
-        if(overlapsOtherEvents(calEvent)) {
+        if(overlapsOtherEvents(calEvent))
             throw new Exception("Event would overlap other events!");
-        }
 
         String monthYear = calEvent.getMonthYear();
         Month m = monthHashMap.getOrDefault(monthYear, null);
@@ -53,6 +57,8 @@ public class Calendar {
 
         int i = binSearchRecur(calEvent,m.getEvents(),0,m.getEvents().size() - 1);
         m.addEventAt(calEvent, i);
+
+        onChange();
     }
 
     // Replaces oldEvent with newEvent.
@@ -67,6 +73,8 @@ public class Calendar {
             addEvent(oldEvent);
             throw e;
         }
+
+        onChange();
     }
 
     public void deleteEvent(CalEvent calEvent){
@@ -75,22 +83,26 @@ public class Calendar {
 
         m.removeEvent(calEvent);
 
-        if(m.getEvents().size() == 0){
+        if(m.getEvents().size() == 0)
             monthHashMap.remove(monthYear);
-        }
+
+        onChange();
     }
 
     // Json (de-)serialization methods
     public String toJson(){
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting()
+                .excludeFieldsWithoutExposeAnnotation()
                 .registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeConverter())
                 .create();
         return gson.toJson(this);
     }
 
     public static Calendar fromJson(String json){
-        Gson gson = new GsonBuilder().registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeConverter())
+        Gson gson = new GsonBuilder()
+                .excludeFieldsWithoutExposeAnnotation()
+                .registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeConverter())
                 .create();
         return gson.fromJson(json, Calendar.class);
     }
@@ -101,9 +113,8 @@ public class Calendar {
             return 0;
 
         if(s == e){
-            if(calEvent.getStartTime().compareTo(eventList.get(s).getStartTime())>0){
+            if(calEvent.getStartTime().compareTo(eventList.get(s).getStartTime()) > 0)
                 return s + 1;
-            }
             return s;
         }
 
@@ -133,5 +144,11 @@ public class Calendar {
         }
 
         return false;
+    }
+
+    private void onChange() {
+        if (onChangedCallback == null) return;
+
+        onChangedCallback.run();
     }
 }

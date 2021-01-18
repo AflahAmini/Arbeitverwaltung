@@ -1,6 +1,7 @@
 package arbyte.controllers;
 
-import arbyte.helper.DataManager;
+import arbyte.managers.DataManager;
+import arbyte.models.FlashMessage;
 import arbyte.networking.HttpRequestHandler;
 import arbyte.networking.RequestType;
 import arbyte.helper.Hasher;
@@ -77,13 +78,13 @@ public class RegisterController {
                             Hasher.storeCredentials(emailField.getText(), passField.getText());
 
                             Platform.runLater(() -> {
-                                user.clearPasswords();
                                 user.id = id;
                                 DataManager.getInstance().initialize(user, true);
 
                                 // Switch to main view with a flash message
                                 SceneHelper.showMainPage();
-                                MainController.getInstance().flash("Register successful!", false);
+                                FlashMessage fm = new FlashMessage("Register successful!", false);
+                                MainController.getInstance().flash(fm);
                             });
                         } else {
                             String message = responseBody.get("error").getAsString();
@@ -119,6 +120,9 @@ public class RegisterController {
     private void setError(String msg){
         error.setText(msg);
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.schedule(() -> error.setText(""), 3, TimeUnit.SECONDS);
+        executorService.schedule(() -> {
+            error.setText("");
+            executorService.shutdown();
+        }, 3, TimeUnit.SECONDS);
     }
 }

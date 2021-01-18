@@ -1,11 +1,13 @@
 package arbyte.controllers;
 
-import arbyte.helper.DataManager;
+import arbyte.managers.DataManager;
 import arbyte.models.CalEvent;
 import arbyte.models.Calendar;
+import arbyte.models.FlashMessage;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTimePicker;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 import java.time.LocalDate;
@@ -14,8 +16,10 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
-public class AddEventController {
+public class EventFormController {
     //#region FXML variables
+    @FXML
+    Label labelTitle;
     @FXML
     TextField eventName;
     @FXML
@@ -23,18 +27,31 @@ public class AddEventController {
     @FXML
     JFXTimePicker eventEndTime;
     @FXML
-    JFXButton addEventButton;
+    JFXButton buttonMain;
     @FXML
     JFXButton cancelButton;
     //#endregion
 
     private LocalDate date;
 
-    public void initialize(LocalDate date){
+    @FXML
+    void initialize() {
         eventStartTime.set24HourView(true);
         eventEndTime.set24HourView(true);
+    }
 
+    public void initializeAdd(LocalDate date){
         this.date = date;
+
+        labelTitle.setText("Add Event");
+        buttonMain.setText("Add");
+    }
+
+    public void initializeEdit(LocalDate date, CalEvent event) {
+        this.date = date;
+
+        labelTitle.setText("Edit Event");
+        buttonMain.setText("Update");
     }
 
     public void addEventButton() {
@@ -54,7 +71,8 @@ public class AddEventController {
             calendar.toJson();
             MainController.getInstance().changeView("fxml/CalendarView.fxml");
         } catch (Exception e) {
-            MainController.getInstance().flash(e.getMessage(), true);
+            FlashMessage fm = new FlashMessage(e.getMessage(), true);
+            MainController.getInstance().flash(fm);
         }
     }
 

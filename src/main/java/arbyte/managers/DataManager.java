@@ -1,19 +1,25 @@
-package arbyte.helper;
+package arbyte.managers;
 
+import arbyte.helper.ResourceLoader;
 import arbyte.controllers.MainController;
-import arbyte.models.CalEvent;
-import arbyte.models.Calendar;
-import arbyte.models.Session;
-import arbyte.models.User;
+import arbyte.helper.SessionMouseListener;
+import arbyte.models.*;
 import arbyte.networking.HttpRequestHandler;
 import arbyte.networking.RequestType;
 import com.google.gson.JsonObject;
+import org.jnativehook.GlobalScreen;
 
 import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 public class DataManager {
     //#region Singleton stuff
@@ -52,9 +58,14 @@ public class DataManager {
         this.online = online;
 
         fetchCalendar();
+        createSession();
+
+        startSessionSyncSchedule();
     }
 
+    public User getCurrentUser() { return currentUser; }
     public Calendar getCalendar() { return calendar; }
+    public Session getSession() { return session; }
 
     // Fetches the calendar json from the server if online, otherwise parses
     // from the local json file into the calendar object.
@@ -69,16 +80,19 @@ public class DataManager {
                         String responseString = reqHandler.getResponseBody(response);
                         calendar = Calendar.fromJson(responseString);
                         saveCalendar();
-                    }
-                    // Throw an exception if the status code is other than 200 and 404
-                    else {
-                        calendar = new Calendar();
-                        saveCalendar();
-                        uploadCalendar();
 
-                        if (response.getStatusLine().getStatusCode() != 404)
-                            throw new Exception(response.getStatusLine().getReasonPhrase());
+                        return null;
                     }
+
+                    // Throw an exception but don't upload if the status code
+                    // is other than 200 and 404
+                    calendar = new Calendar();
+                    saveCalendar();
+
+                    if (response.getStatusLine().getStatusCode() == 404)
+                        uploadCalendar();
+                    else
+                        throw new Exception(response.getStatusLine().getReasonPhrase());
 
                 } catch (Exception e) {
                     System.out.println("fetchCalendar : Something went wrong!");
@@ -96,7 +110,12 @@ public class DataManager {
                 online = false;
                 fetchCalendar();
                 return null;
-            });
+            }).whenComplete(((u, t) -> {
+                calendar.setOnChangedCallback(() -> {
+                    saveCalendar();
+                    uploadCalendar();
+                });
+            }));
         } else {
             try {
                 // Read from file on calendarPath into a StringBuilder
@@ -128,6 +147,8 @@ public class DataManager {
 
                 // Set calendar as new calendar by default
                 calendar = new Calendar();
+            } finally {
+                calendar.setOnChangedCallback(this::saveCalendar);
             }
         }
     }
@@ -181,6 +202,7 @@ public class DataManager {
     private void createSession() {
         if (!online) {
             session = new Session();
+            onSessionCreated();
             return;
         }
 
@@ -211,12 +233,16 @@ public class DataManager {
                 } else {
                     String error = responseBody.get("error").getAsString();
                     flashMessage(error, true);
+
+                    session = new Session();
                 }
             } catch (Exception e) {
                 System.out.println("createSession : Something went wrong!");
                 e.printStackTrace();
 
                 session = new Session();
+            } finally {
+                onSessionCreated();
             }
 
             return null;
@@ -224,11 +250,13 @@ public class DataManager {
             System.out.println(connectionFailedMessage("createSession"));
 
             online = false;
+            createSession();
+
             return null;
         });
     }
 
-    // Sends a PUT request to /sessions with the session object update the corresponding session.
+    // Sends a PUT request to /sessions with the session object to update the corresponding session.
     private void updateSession() {
         if (!online || session == null)
             return;
@@ -254,8 +282,39 @@ public class DataManager {
         });
     }
 
+    private void onSessionCreated() {
+        // Disables the default logger for GlobalScreen
+        LogManager.getLogManager().reset();
+        Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
+        logger.setLevel(Level.OFF);
+
+        // Registers SessionMouseListener to manage session pauses upon inactivity
+        try {
+            GlobalScreen.registerNativeHook();
+            SessionMouseListener mouse = new SessionMouseListener(session);
+            GlobalScreen.addNativeMouseMotionListener(mouse);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void startSessionSyncSchedule() {
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        ExecutorServiceManager.register(executorService);
+
+        executorService.scheduleAtFixedRate(this::updateSession,
+                5, 5, TimeUnit.MINUTES);
+    }
+
     private void flashMessage(String message, boolean isError) {
-        MainController.getInstance().flash(message, isError);
+        FlashMessage fm = new FlashMessage(message, isError);
+        if (MainController.getInstance() == null) {
+            MainController.addToPendingMessages(fm);
+            return;
+        }
+
+        MainController.getInstance().flash(fm);
     }
 
     private String connectionFailedMessage(String context) {

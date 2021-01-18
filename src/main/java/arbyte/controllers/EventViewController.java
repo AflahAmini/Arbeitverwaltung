@@ -1,6 +1,6 @@
 package arbyte.controllers;
 
-import arbyte.helper.DataManager;
+import arbyte.managers.DataManager;
 import arbyte.helper.SceneHelper;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
@@ -53,8 +53,8 @@ public class EventViewController {
     }
 
     public void addEventButton(){
-        MainController.getInstance().changeViewAndModify("fxml/EventAdd.fxml",
-                (Consumer<AddEventController>) controller -> controller.initialize(date));
+        MainController.getInstance().changeViewAndModify("fxml/EventForm.fxml",
+                (Consumer<EventFormController>) controller -> controller.initializeAdd(date));
     }
 
     public void backButton(){

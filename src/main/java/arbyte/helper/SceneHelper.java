@@ -30,7 +30,7 @@ public class SceneHelper {
     }
 
     public static void showAddEvent(){
-        SceneHelper.switchSceneResource("fxml/EventAdd.fxml", 600, 400);
+        SceneHelper.switchSceneResource("fxml/EventForm.fxml", 600, 400);
     }
 
     public static Parent getParentFromFXML(String filename) {

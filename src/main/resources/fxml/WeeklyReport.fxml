@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@../../Repositories/Arbyte_git/target/classes/stylesheets/style.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="arbyte.controllers.CalendarViewController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="arbyte.controllers.WeeklyReportController">
    <center>
       <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <children>
@@ -27,7 +27,7 @@
             </Label>
             <HBox alignment="CENTER" prefHeight="0.0" prefWidth="600.0" spacing="25.0">
                <children>
-                  <JFXButton fx:id="btnPrevious" contentDisplay="GRAPHIC_ONLY" maxHeight="-Infinity" maxWidth="-Infinity" onAction="#previousButton" prefHeight="0.0" prefWidth="27.0" text="&lt;">
+                  <JFXButton contentDisplay="GRAPHIC_ONLY" maxHeight="-Infinity" maxWidth="-Infinity" onAction="#prevWeekYear" prefHeight="0.0" prefWidth="27.0" text="&lt;">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -35,8 +35,8 @@
                            </image>
                         </ImageView>
                      </graphic></JFXButton>
-                  <Label fx:id="labelMonthYear" text="Week XX - YYYY" />
-                  <JFXButton fx:id="btnNext" contentDisplay="GRAPHIC_ONLY" onAction="#nextButton" prefHeight="0.0" prefWidth="0.0" text="&gt;">
+                  <Label fx:id="labelWeekYear" text="Week XX - YYYY" />
+                  <JFXButton contentDisplay="GRAPHIC_ONLY" onAction="#nextWeekYear" prefHeight="0.0" prefWidth="0.0" text="&gt;">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>

@@ -1,11 +1,16 @@
 package arbyte.models;
 
+import com.google.gson.annotations.Expose;
+
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class CalEvent {
+    @Expose
     private final String name;
+    @Expose
     private final ZonedDateTime startTime;
+    @Expose
     private final ZonedDateTime endTime;
 
     private final boolean isValid;
