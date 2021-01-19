@@ -7,6 +7,8 @@ import arbyte.models.*;
 import arbyte.models.ui.FlashMessage;
 import arbyte.networking.HttpRequestHandler;
 import arbyte.networking.RequestType;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.jnativehook.GlobalScreen;
 
@@ -18,6 +20,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -80,6 +83,49 @@ public class DataManager {
         catch(Exception e){
             e.printStackTrace();
         }
+    }
+
+    public void fetchSessions(WeekYear weekYear, Consumer<List<SessionData>> onReceived) {
+        if (!online) return;
+
+        List<SessionData> sessions = new ArrayList<>();
+
+        reqHandler.requestWithAuth(RequestType.GET, "/sessions/" + weekYear.toString(), "",
+        response -> {
+            try {
+                if (response.getStatusLine().getStatusCode() == 200) {
+                    JsonObject responseJson = reqHandler.getResponseBodyJson(response);
+                    JsonArray sessionsArr = responseJson.getAsJsonArray("sessions");
+
+                    for (JsonElement e: sessionsArr) {
+                        JsonObject sessionObj = e.getAsJsonObject();
+
+                        int dayOfWeek = sessionObj.get("dayOfWeek").getAsInt();
+                        long activeDuration = sessionObj.get("activeDuration").getAsLong();
+                        long inactiveDuration = sessionObj.get("inactiveDuration").getAsLong();
+
+                        sessions.add(new SessionData(dayOfWeek, activeDuration, inactiveDuration));
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("fetchSessions : Something went wrong!");
+                e.printStackTrace();
+
+                sessions.clear();
+            } finally {
+                onReceived.accept(sessions);
+            }
+
+            return null;
+        }).exceptionally(e -> {
+            System.out.println(connectionFailedMessage("fetchSessions"));
+
+            sessions.clear();
+            onReceived.accept(sessions);
+
+            online = false;
+            return null;
+        });
     }
 
     // Fetches the calendar json from the server if online, otherwise parses
