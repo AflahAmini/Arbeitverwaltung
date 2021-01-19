@@ -1,4 +1,4 @@
-package arbyte.models;
+package arbyte.models.ui;
 
 public class FlashMessage {
     private final String message;

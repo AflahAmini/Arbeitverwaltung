@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane fx:id="root" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="arbyte.controllers.MainController">
+<StackPane fx:id="root" prefHeight="517.0" prefWidth="695.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="arbyte.controllers.MainController">
 <HBox alignment="TOP_RIGHT" prefHeight="400.0" prefWidth="600.0" stylesheets="@../stylesheets/style.css">
    <children>
       <AnchorPane fx:id="mainView" maxHeight="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
@@ -27,15 +27,26 @@
                         <viewport>
                            <Rectangle2D />
                         </viewport>
+                        <VBox.margin>
+                           <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                        </VBox.margin>
                   </ImageView>
-                  <Label fx:id="labelEmail" prefHeight="42.0" prefWidth="120.0" text="User @example.com" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+                  <Label fx:id="labelUsername" alignment="CENTER" prefHeight="2.0" prefWidth="118.0" text="username" textFill="WHITE" wrapText="true">
                      <VBox.margin>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
+                        <Insets />
                      </VBox.margin>
                      <font>
-                        <Font size="14.0" />
+                        <Font size="16.0" />
                      </font>
                   </Label>
+                     <Label fx:id="labelAtDomain" alignment="CENTER" prefHeight="2.0" prefWidth="118.0" text="\@example.com" textFill="#ffffff99" wrapText="true">
+                        <font>
+                           <Font size="13.0" />
+                        </font>
+                        <VBox.margin>
+                           <Insets top="-3.0" />
+                        </VBox.margin>
+                     </Label>
                   <Label fx:id="labelStatus" alignment="CENTER_RIGHT" text="Status" textFill="WHITE">
                      <font>
                         <Font size="14.0" />
@@ -44,7 +55,7 @@
                         <Insets bottom="2.0" top="2.0" />
                      </padding>
                         <VBox.margin>
-                           <Insets bottom="20.0" />
+                           <Insets bottom="20.0" top="10.0" />
                         </VBox.margin>
                      </Label>
                   <JFXButton text="Projects" textFill="WHITE">
@@ -76,6 +87,7 @@
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </padding>
             </VBox>
+               <JFXButton onAction="#logout" prefHeight="30.0" prefWidth="100.0" ripplerFill="#ea8f20" text="Logout" textFill="#ea8f20" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" />
             <Label fx:id="labelSession" alignment="CENTER" style="-fx-background-color: #D17B0F;" text="Current Session" textFill="#1d3557" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                <padding>
                   <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
@@ -90,7 +102,7 @@
 </HBox>
 <AnchorPane pickOnBounds="false" prefHeight="200.0" prefWidth="200.0">
    <children>
-      <VBox fx:id="containerFlash" layoutX="14.0" layoutY="14.0" pickOnBounds="false" prefHeight="370.0" prefWidth="322.0" spacing="10.0" />
+      <VBox fx:id="containerFlash" layoutX="14.0" layoutY="14.0" pickOnBounds="false" prefHeight="492.0" prefWidth="349.0" spacing="10.0" />
    </children>
 </AnchorPane>
 </StackPane>

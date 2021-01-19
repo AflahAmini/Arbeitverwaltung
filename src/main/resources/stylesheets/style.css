@@ -1,13 +1,24 @@
 .background-blue{
     -fx-background-color : #1D3557;
 }
+
 .white-field {
     -fx-text-inner-color : white;
 }
 
-.button-highlight{
+.window-prompt {
+    -fx-background-color : white;
+    -fx-background-radius : 5px;
+}
+
+.button-highlight {
     -fx-background-color :  #ed8021;
-    -fx-background-radius :  5;
+    -fx-background-radius :  5px;
+}
+
+.button-blue {
+    -fx-background-color :  #1D3557;
+    -fx-background-radius :  5px;
 }
 
 .list-cell{
