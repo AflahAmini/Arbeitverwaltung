@@ -3,10 +3,10 @@ package arbyte.controllers;
 import arbyte.managers.DataManager;
 import arbyte.helper.SceneHelper;
 import arbyte.models.CalEvent;
+import arbyte.models.ui.PromptType;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
@@ -89,11 +89,15 @@ public class EventViewController {
     public void deleteEvent(){
         if(selectedIndex == -1) return;
 
-        CalEvent event = DataManager.getInstance().lastEventsList.get(selectedIndex);
-        DataManager.getInstance().getCalendar().deleteEvent(event);
+        MainController.getInstance().showPrompt(PromptType.CONFIRMATION, () ->
+            Platform.runLater(() -> {
+                CalEvent event = DataManager.getInstance().lastEventsList.get(selectedIndex);
+                DataManager.getInstance().getCalendar().deleteEvent(event);
 
-        DataManager.getInstance().lastEventsList.remove(selectedIndex);
-        listView.getItems().remove(selectedIndex);
+                DataManager.getInstance().lastEventsList.remove(selectedIndex);
+                listView.getItems().remove(selectedIndex);
+            })
+        );
     }
 
     public void back(){

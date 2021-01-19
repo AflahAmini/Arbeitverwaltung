@@ -1,7 +1,7 @@
 package arbyte.controllers;
 
 import arbyte.managers.DataManager;
-import arbyte.models.FlashMessage;
+import arbyte.models.ui.FlashMessage;
 import arbyte.networking.HttpRequestHandler;
 import arbyte.networking.RequestType;
 import arbyte.helper.Hasher;

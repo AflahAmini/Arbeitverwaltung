@@ -1,29 +1,38 @@
 package arbyte.controllers;
 
 import arbyte.helper.SceneHelper;
+import arbyte.models.ui.PromptType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.layout.AnchorPane;
-
-import java.io.IOException;
+import javafx.scene.layout.BorderPane;
 
 public class PromptOverlayController {
-    @FXML
-    AnchorPane promptContainer;
 
     @FXML
-    void initialize(){
+    BorderPane root;
+
+    void initialize(PromptType promptType, Runnable onConfirm, Runnable onCancel) {
         try {
-            FXMLLoader loader = SceneHelper.getFXMLLoader("fxml/PromptConfirmation.fxml");
+            FXMLLoader loader = SceneHelper.getFXMLLoader(getFxmlPathFromType(promptType));
             Parent prompt = loader.load();
-            promptContainer.getChildren().add(prompt);
-            AnchorPane.setTopAnchor(prompt, 0.0);
-            AnchorPane.setBottomAnchor(prompt, 0.0);
-            AnchorPane.setRightAnchor(prompt, 0.0);
-            AnchorPane.setLeftAnchor(prompt, 0.0);
+            root.setCenter(prompt);
 
-        } catch (IOException e) {
+            PromptController controller = loader.getController();
+            controller.initialize(onConfirm, onCancel);
+        } catch (Exception e) {
             e.printStackTrace();
-        }    }
+        }
+    }
+
+    private String getFxmlPathFromType(PromptType promptType) throws Exception {
+        switch (promptType) {
+            case CONFIRMATION:
+                return "fxml/prompts/PromptConfirmation.fxml";
+            case LOGOUT:
+                return "fxml/prompts/PromptLogOut.fxml";
+            default:
+                throw new Exception("Invalid prompt type!");
+        }
+    }
 }

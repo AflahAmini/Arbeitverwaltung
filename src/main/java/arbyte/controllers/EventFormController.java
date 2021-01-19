@@ -3,7 +3,7 @@ package arbyte.controllers;
 import arbyte.managers.DataManager;
 import arbyte.models.CalEvent;
 import arbyte.models.Calendar;
-import arbyte.models.FlashMessage;
+import arbyte.models.ui.FlashMessage;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTimePicker;
 import javafx.fxml.FXML;
@@ -80,7 +80,6 @@ public class EventFormController {
 
             MainController.getInstance().changeView("fxml/CalendarView.fxml");
         } catch (Exception e) {
-            e.printStackTrace();
             FlashMessage fm = new FlashMessage(e.getMessage(), true);
             MainController.getInstance().flash(fm);
         }

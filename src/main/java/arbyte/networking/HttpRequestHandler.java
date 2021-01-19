@@ -121,14 +121,20 @@ public class HttpRequestHandler {
             }
 
             // If unauthorized then attempt to refresh tokens
-            refreshTokens();
-            client.execute(request, handler);
+            refreshTokens(() -> {
+                try {
+                    request.setHeader("Authorization", "Bearer " + accessToken);
+                    client.execute(request, handler);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
             return null;
         });
     }
 
     // Sends a request to refresh the access and refresh tokens.
-    private void refreshTokens() {
+    private void refreshTokens(Runnable onFinish) {
         System.out.println("Refreshing tokens");
 
         request(RequestType.POST, "/refresh-token",
@@ -139,6 +145,7 @@ public class HttpRequestHandler {
                     setAccessToken(resBodyJson.get("accessToken").getAsString());
                     setRefreshToken(resBodyJson.get("refreshToken").getAsString());
 
+                    onFinish.run();
                     return null;
                 });
     }

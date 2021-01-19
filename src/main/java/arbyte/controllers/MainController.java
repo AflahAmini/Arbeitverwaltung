@@ -3,8 +3,9 @@ package arbyte.controllers;
 import arbyte.managers.ExecutorServiceManager;
 import arbyte.managers.DataManager;
 import arbyte.helper.SceneHelper;
-import arbyte.models.FlashMessage;
+import arbyte.models.ui.FlashMessage;
 import arbyte.models.Session;
+import arbyte.models.ui.PromptType;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -49,29 +50,28 @@ public class MainController {
     @FXML
     VBox containerFlash;
     @FXML
+    Label labelUsername;
+    @FXML
+    Label labelAtDomain;
+    @FXML
     Label labelStatus;
     //#endregion
 
     private final DataManager dataManager = DataManager.getInstance();
 
     @FXML
-    Label labelEmail;
-
-    @FXML
     public void initialize() {
         mainController = this;
 
-        StringBuilder emailBuffer = new StringBuilder(dataManager.getCurrentUser().getEmail());
-        int atIndex = emailBuffer.indexOf("@");
-        String email = emailBuffer.insert(atIndex, " ").toString();
-
-        labelEmail.setText(email);
+        String[] emailSplit = dataManager.getCurrentUser().getEmail().split("@", 2);
+        labelUsername.setText(emailSplit[0]);
+        labelAtDomain.setText("@" + emailSplit[1]);
 
         clearPendingMessages();
         startSessionUpdateSchedule();
         setStatus(true);
 
-        switchToWeeklyReport();
+        switchToCalendar();
     }
 
     public void switchToCalendar() {
@@ -82,6 +82,13 @@ public class MainController {
 
     public void switchToWeeklyReport() {
         changeView("fxml/WeeklyReport.fxml");
+    }
+
+    public void logout() {
+        showPrompt(PromptType.LOGOUT, () -> {
+            dataManager.destroySession();
+            Platform.runLater(SceneHelper::showLogInPage);
+        });
     }
 
     public void changeView(String fxmlPath){
@@ -168,11 +175,15 @@ public class MainController {
         });
     }
 
-    public void showPrompt(){
+    public void showPrompt(PromptType promptType, Runnable onConfirm){
         try {
-            FXMLLoader loader = SceneHelper.getFXMLLoader("fxml/PromptOverlay.fxml");
+            FXMLLoader loader = SceneHelper.getFXMLLoader("fxml/prompts/PromptOverlay.fxml");
             Parent promptOverlay = loader.load();
             root.getChildren().add(promptOverlay);
+
+            PromptOverlayController controller = loader.getController();
+            controller.initialize(promptType, onConfirm, () ->
+                    Platform.runLater(() -> root.getChildren().remove(promptOverlay)));
 
         } catch (IOException e) {
             e.printStackTrace();
