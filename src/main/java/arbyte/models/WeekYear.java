@@ -1,8 +1,12 @@
 package arbyte.models;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
+import java.time.temporal.IsoFields;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Calendar;
+import java.util.Date;
 
 public class WeekYear {
     private int week;
@@ -43,6 +47,18 @@ public class WeekYear {
     @Override
     public String toString() {
         return String.format("%02d-%d", week, year);
+    }
+
+    public LocalDate getStartDate() {
+        return LocalDate.ofYearDay(year, 1)
+                .with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, week)
+                .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+    }
+
+    public LocalDate getEndDate() {
+        return LocalDate.ofYearDay(year, 1)
+                .with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, week)
+                .with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
     }
 
     private int getMaxWeeks() {

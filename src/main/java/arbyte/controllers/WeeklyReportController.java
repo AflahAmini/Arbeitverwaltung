@@ -9,14 +9,19 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 
 import java.time.DayOfWeek;
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
 
 public class WeeklyReportController {
     private static final WeekYear weekYear = WeekYear.now();
+    private static final DateTimeFormatter dateFormatter =
+            DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
     @FXML
     Label labelWeekYear;
+    @FXML
+    Label labelDateRange;
     @FXML
     StackedBarChart<String, Number> stackedBarChart;
 
@@ -51,6 +56,11 @@ public class WeeklyReportController {
 
     private void update() {
         labelWeekYear.setText(weekYear.toString());
+
+        String dateFrom = dateFormatter.format(weekYear.getStartDate()).substring(0, 5);
+        String dateTo = dateFormatter.format(weekYear.getEndDate());
+
+        labelDateRange.setText(dateFrom + " - " + dateTo);
 
         for (int i = 0; i < 7; i++) {
             activeSeries.getData().get(i).setYValue(0);
