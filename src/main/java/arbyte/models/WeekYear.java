@@ -50,13 +50,15 @@ public class WeekYear {
     }
 
     public LocalDate getStartDate() {
-        return LocalDate.ofYearDay(year, 1)
+        return LocalDate.now()
+                .withYear(year)
                 .with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, week)
                 .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
     }
 
     public LocalDate getEndDate() {
-        return LocalDate.ofYearDay(year, 1)
+        return LocalDate.now()
+                .withYear(year)
                 .with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, week)
                 .with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
     }
