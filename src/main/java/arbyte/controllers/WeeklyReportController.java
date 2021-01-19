@@ -29,8 +29,8 @@ public class WeeklyReportController {
         inactiveSeries.setName("Inactive");
 
         for (int i = 0; i < 7; i++) {
-            activeSeries.getData().add(new XYChart.Data<>(getDayName(i == 0 ? 7 : i), 0));
-            inactiveSeries.getData().add(new XYChart.Data<>(getDayName(i == 0 ? 7 : i), 0));
+            activeSeries.getData().add(new XYChart.Data<>(getDayName(i + 1), 0));
+            inactiveSeries.getData().add(new XYChart.Data<>(getDayName(i + 1), 0));
         }
 
         stackedBarChart.getData().add(activeSeries);
@@ -59,7 +59,7 @@ public class WeeklyReportController {
 
         DataManager.getInstance().fetchSessions(weekYear, sessions -> {
             for (SessionData s: sessions) {
-                int i = s.getDayOfWeek();
+                int i = s.getDayOfWeek() - 1;
                 double activeHours = s.getActiveDuration() / 3600.0;
                 double inactiveHours = s.getInactiveDuration() / 3600.0;
 
