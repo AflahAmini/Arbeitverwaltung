@@ -25,7 +25,7 @@
                   <Insets bottom="7.0" />
                </VBox.margin>
             </Label>
-            <HBox alignment="CENTER" prefHeight="0.0" prefWidth="600.0" spacing="25.0">
+            <HBox alignment="CENTER" prefHeight="38.0" prefWidth="640.0" spacing="25.0">
                <children>
                   <JFXButton contentDisplay="GRAPHIC_ONLY" maxHeight="-Infinity" maxWidth="-Infinity" onAction="#prevWeekYear" prefHeight="0.0" prefWidth="27.0" text="&lt;">
                      <graphic>
@@ -35,7 +35,16 @@
                            </image>
                         </ImageView>
                      </graphic></JFXButton>
-                  <Label fx:id="labelWeekYear" text="Week XX - YYYY" />
+                  <VBox alignment="CENTER" spacing="3.0">
+                     <children>
+                        <Label fx:id="labelWeekYear" text="Week XX - YYYY">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="labelDateRange" text="(dd-mm - dd-mm-yyyy)" />
+                     </children>
+                  </VBox>
                   <JFXButton contentDisplay="GRAPHIC_ONLY" onAction="#nextWeekYear" prefHeight="0.0" prefWidth="0.0" text="&gt;">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
