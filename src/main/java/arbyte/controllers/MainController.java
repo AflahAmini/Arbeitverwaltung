@@ -223,7 +223,7 @@ public class MainController {
 
         if (s == null) return "--:--";
         long sessionSeconds = s.getActiveDuration().getSeconds();
-        return String.format("%02d:%02d", sessionSeconds / 3600, sessionSeconds / 60);
+        return String.format("%02d:%02d", sessionSeconds / 3600, (sessionSeconds % 3600) / 60);
     }
 
     private void clearPendingMessages() {
