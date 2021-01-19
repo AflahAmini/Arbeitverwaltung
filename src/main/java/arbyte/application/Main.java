@@ -13,6 +13,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         SceneHelper.initialise(primaryStage);
         SceneHelper.showLogInPage();
+        primaryStage.setTitle("Arbyte");
 
         // Makes sure the program exits properly
         Platform.setImplicitExit(true);
